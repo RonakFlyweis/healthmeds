@@ -17,8 +17,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -40,8 +38,7 @@ class MyApp extends StatelessWidget {
           snackBar: SnackBar(
             content: Text('Tap back again to leave.'),
           ),
-          child: MainPage(),
-          //child: HealthMedsHome(),
+          child: HealthMedsHome(),
         ),
       ),
     );

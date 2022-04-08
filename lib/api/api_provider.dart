@@ -8,10 +8,10 @@ import 'package:newhealthapp/testpages/newbottomnavigation.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'api_endpoint.dart';
 import 'api_response.dart';
 
+// 'Authorization': 'Bearer ${user.authToken}'
 class ApiProvider {
   // -------------------------------------------Webservice Url--------------------------------------------------------------
 
@@ -21,7 +21,7 @@ class ApiProvider {
 
   Future<SharedPreferences> s = SharedPreferences.getInstance();
 
-///This Funcation is used for Auto Login.
+  ///This Function is used for Auto Login.
   Future autoLogin() async {
     SharedPreferences sp = await s;
     bool b = sp.containsKey("AUTH_KEY");
@@ -29,7 +29,7 @@ class ApiProvider {
     return b;
   }
 
-  /// This Funcation is used for LogOut
+  /// This Function is used for LogOut
   Future logout(context) async {
     final _sp = await s;
     _sp.clear();
@@ -38,14 +38,9 @@ class ApiProvider {
         context, MaterialPageRoute(builder: (c) => Login()), (route) => false);
     Fluttertoast.showToast(msg: "Logout Successful");
     print(_sp.setBool("DB_VISITED", true));
-    //
-    // print('==afterlogoutAuth=>${_sp.getString("AUTH_KEY")}');
-    // print('==afterlogoutemail=>${_sp.getString("EMAIL")}');
-    // print('==afterlogoutname=>${_sp.getString("NAME")}');
-    // print('==afterlogoutphone=>${_sp.getString("PHONE")}');
   }
 
-  ///This funcation is used for user Login via OTP
+  ///This function is used for user Login via OTP
   static Future loginUser(var phone) async {
     var headers = {'Content-Type': 'application/json'};
 
@@ -57,32 +52,8 @@ class ApiProvider {
     return r;
   }
 
-
-
   //Todo Need to complete Resend function
   static Future resend(var phone) async {
-         /*    if (_phone.text.isNotEmpty) {
-      EasyLoading.show(
-          status: 'Loading...', dismissOnTap: false);
-      Response r = await ApiProvider.loginUser(_phone.text);
-      EasyLoading.dismiss();
-      if (r.statusCode == 200) {
-        var data = json.decode(r.body);
-        EasyLoading.showToast('OTP = ${data['otp']}',
-            duration: Duration(seconds: 5));
-        Navigator.pushAndRemoveUntil(context,PageTransition(
-            type: PageTransitionType.rightToLeft,
-            child: OTPScreen(
-              hash: data['hash'],
-              phone: data['phone'],
-            )),
-                (route) => false);
-      } else {
-        EasyLoading.showToast('Something Went Wrong!');
-      }
-    } else {
-      EasyLoading.showError('Enter Phone Number!');
-    }*/
     var headers = {'Content-Type': 'application/json'};
     var body = json.encode({"phone": phone});
     var url = baseUrl + "sendOtp";
@@ -90,13 +61,10 @@ class ApiProvider {
     return r;
   }
 
-
   ///for otp verification
   Future otpverify(var phone, var hash, var otp) async {
     SharedPreferences sp = await s;
-
     var headers = {'Content-Type': 'application/json'};
-
     var body = json.encode({
       "phone": phone,
       "hash": hash,
@@ -105,19 +73,12 @@ class ApiProvider {
 
     var r = await http.post(Uri.parse(getotpverifyUrl),
         body: body, headers: headers);
-    var cookies = r.headers['set-cookie'];
+    //var cookies = r.headers['set-cookie'];
     // final va = jsonDecode()
 
-    print("===Auth_Key_cookies==>${cookies}");
-    // print("==contains==>${cookies!.contains("accessToken=")}");
-    // print("==allMatches==>${cookies.allMatches("accessToken=")}");
-    // print("==endsWith==>${cookies.endsWith(";")}");
-    //
-    // List<String> item =cookies.split(";");
-    //
-    // print("==split==>${cookies.split(";")}");
-    // print("==item==>${item[0].split("=")[1]}");
-    sp.setString("AUTH_KEY", "${cookies}");
+    //print("===Auth_Key_cookies==>${cookies}");
+    //sp.setString("AUTH_KEY", "${cookies}");
+    sp.setString("AUTH_KEY", jsonDecode(r.body)["loginToken"]);
     print(r.body);
     return r;
   }
@@ -135,16 +96,20 @@ class ApiProvider {
   }
 
   ///This Method is used for fetching data
-  Future<ApiResponse>  getReq(
+  Future<ApiResponse> getReq(
       {required String endpoint, String query = ""}) async {
     final String url = endpoint + query;
     final _sp = await s;
     var token = _sp.getString("AUTH_KEY");
-    var header = {'accessToken': '$token'};
+    //var header = {'accessToken': '$token'};
+    var header = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    };
     print(url);
     try {
       Response getReq = await get(Uri.parse(url), headers: header);
-      print(getReq.request.toString()+" "+ getReq.statusCode.toString());
+      print(getReq.request.toString() + " " + getReq.statusCode.toString());
       return ApiResponse(data: getReq.body);
     } catch (e) {
       return ApiResponse(error: true, errorMessage: e.toString());
@@ -154,8 +119,11 @@ class ApiProvider {
   Future<ApiResponse> postReq({required String endpoint}) async {
     final _sp = await s;
     var token = _sp.getString("AUTH_KEY");
-    var headers = {'Cookie': '$token'};
-
+    //var headers = {'Cookie': '$token'};
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    };
     try {
       var request = http.Request('POST', Uri.parse(endpoint));
 
@@ -175,11 +143,14 @@ class ApiProvider {
   postandGet() async {
     final _sp = await s;
     var token = _sp.getString("AUTH_KEY");
-    var headers = {'Cookie': '$token'};
-
+    //var headers = {'Cookie': '$token'};
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    };
     try {
-      var request = http.Request(
-          'POST', Uri.parse('https://helthmade-1234.herokuapp.com/user/getCartItems'));
+      var request = http.Request('POST',
+          Uri.parse('https://helthmade-1234.herokuapp.com/user/getCartItems'));
 
       request.headers.addAll(headers);
 
@@ -199,7 +170,11 @@ class ApiProvider {
   Future AddUser(String name, String email) async {
     final sp = await s;
     var token = sp.getString("AUTH_KEY");
-    var headers = {'Content-Type': 'application/json', 'Cookie': '$token'};
+    //var headers = {'Content-Type': 'application/json', 'Cookie': '$token'};
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    };
     var request = http.Request('POST', Uri.parse(adduserUrl));
     request.body = json.encode({"full_name": name, "email": email});
     request.headers.addAll(headers);
@@ -239,7 +214,11 @@ class ApiProvider {
 
     // var header = {'accessToken': '$token'};
 
-    var headers = {'Content-Type': 'application/json', 'Cookie': '$token'};
+    //var headers = {'Content-Type': 'application/json', 'Cookie': '$token'};
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    };
 
     try {
       var request = http.Request('POST', Uri.parse(getaddcarturl));
@@ -270,8 +249,7 @@ class ApiProvider {
 
   ///This function used for searching
   Future<ApiResponse> searchByKeywordActive(String searchKeyword) async {
-    ApiResponse cp = await ApiProvider()
-        .getReq(
+    ApiResponse cp = await ApiProvider().getReq(
         endpoint: 'https://helthmade-1234.herokuapp.com/filterProduct?title=',
         query: searchKeyword);
     print("==searched=>${cp.data}");
@@ -279,14 +257,12 @@ class ApiProvider {
   }
 }
 
-
-  // static Future searchByKeywordActive(String searchKeyword) async {
-  //   http.Response response = await http.get(Uri.parse(
-  //       'http://mern.online:5656/filterProduct?title=$searchKeyword'));
-  //   String content = response.body;
-  //   List collection = json.decode(content);
-  // }
-
+// static Future searchByKeywordActive(String searchKeyword) async {
+//   http.Response response = await http.get(Uri.parse(
+//       'http://mern.online:5656/filterProduct?title=$searchKeyword'));
+//   String content = response.body;
+//   List collection = json.decode(content);
+// }
 
 /*Future AddToCartProduct() async {
     final _sp = await s;

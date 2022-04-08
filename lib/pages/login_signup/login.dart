@@ -135,6 +135,7 @@ sendotp(String phone) async {
                             status: 'Loading...', dismissOnTap: false);
                         Response r = await ApiProvider.loginUser(_phone.text);
                         EasyLoading.dismiss();
+                        print(r.statusCode);
                         if (r.statusCode == 200) {
                           var data = json.decode(r.body);
                           EasyLoading.showToast('OTP = ${data['otp']}',

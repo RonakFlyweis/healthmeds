@@ -8,9 +8,9 @@ import 'package:newhealthapp/api/api_endpoint.dart';
 import 'package:newhealthapp/api/api_provider.dart';
 import 'package:newhealthapp/api/api_response.dart';
 
-CartItemDetail cartItemDetailFromJson(String str) => CartItemDetail.fromJson(json.decode(str));
+CartItemDetail cartItemDetailFromJson(String str) => CartItemDetail.fromJson(jsonDecode(str));
 
-String cartItemDetailToJson(CartItemDetail data) => json.encode(data.toJson());
+String cartItemDetailToJson(CartItemDetail data) => jsonEncode(data.toJson());
 
 class CartItemDetail {
   CartItemDetail({

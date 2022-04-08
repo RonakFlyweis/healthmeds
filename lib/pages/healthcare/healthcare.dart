@@ -14,6 +14,7 @@ import 'package:newhealthapp/api/api_endpoint.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/choose_location_address/choose_location.dart';
 import 'package:newhealthapp/pages/products_list/product_list.dart';
+import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,12 +24,10 @@ class HealthCare extends StatefulWidget {
 }
 
 class _HealthCareState extends State<HealthCare> {
-
   Stream get healthcareproduct async* {
     print('InSide Stream');
     yield await getHealthCareProduct();
   }
-
 
   getHealthCareProducts() async {
     var url = 'https://helthmade-1234.herokuapp.com/viewHealthCareProduct';
@@ -47,8 +46,6 @@ class _HealthCareState extends State<HealthCare> {
       print(e.toString());
     }
   }
-
-
 
   @override
   void initState() {
@@ -102,8 +99,14 @@ class _HealthCareState extends State<HealthCare> {
                                 child: ChooseLocation()))
                         .then((value) async {
                       Future<SharedPreferences> s =
-                      SharedPreferences.getInstance();
+                          SharedPreferences.getInstance();
                       SharedPreferences sp = await s;
+                      print(value);
+                      if (value != null) {
+                        address = value;
+                      } else {
+                        address = address;
+                      }
                       sp.setString("ADDRESS", "$value");
                       // SetAdress();
                       setState(() {});
@@ -114,9 +117,18 @@ class _HealthCareState extends State<HealthCare> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        addressadd != null ? "${addressadd}" : "No Address",
-                        style: thickWhiteTextStyle,
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width*0.3,
+                        child: Text(
+                          //address ?? addressadd ?? 'No Address',
+                          address,
+                          style: TextStyle(
+                              fontSize: 15.0,
+                              color: whiteColor,
+                              fontWeight: FontWeight.w500,
+                              overflow: TextOverflow.ellipsis
+                          ),
+                        ),
                       ),
                       Icon(Icons.keyboard_arrow_down,
                           size: 20.0, color: whiteColor),
@@ -193,88 +205,87 @@ class _HealthCareState extends State<HealthCare> {
       ),
       body: FutureBuilder(
           future: getHealthCareProducts(),
-        builder: (BuildContext context,AsyncSnapshot s) {
-          if (s.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (s.hasData &&
-              s.connectionState == ConnectionState.done) {
-            //List<Healthcaremodel> item = healthcaremodelFromJson(s.data.data);
-            final data = s.data['data'];
-            return ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: data.length,
-              itemBuilder: (context, i) {
-                // final item = offerList[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.rightToLeft,
-                            child: ProductList()));
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(
-                      top: fixPadding * 2.0,
-                      right: fixPadding * 2.0,
-                      left: fixPadding * 2.0,
-                      bottom:
-                      (i == (data.length - 1)) ? fixPadding * 2.0 : 0.0,
-                    ),
-                    padding: EdgeInsets.all(fixPadding * 2.0),
-                    decoration: BoxDecoration(
-                      color: whiteColor,
-                      borderRadius: BorderRadius.circular(8.0),
-                      border: Border.all(width: 0.2, color: primaryColor),
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                          blurRadius: 1.5,
-                          spreadRadius: 1.5,
-                          color: Colors.grey.shade200,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(data[i]['name'],
-                                style: primaryColorHeadingStyle),
-                            const SizedBox(height: 4.0),
-                            Text("Upto ${data[i]['discount']}% off",
-                                style: primaryColorNormalThinTextStyle),
-                          ],
-                        ),
-                        Container(
-                          width: 100.0,
-                          height: 100.0,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(imagebaseurlold +
-                                  data[i]['productPictures'][0]['originalname']
-                                      .toString()),
-                              fit: BoxFit.fitHeight,
+          builder: (BuildContext context, AsyncSnapshot s) {
+            if (s.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (s.hasData && s.connectionState == ConnectionState.done) {
+              //List<Healthcaremodel> item = healthcaremodelFromJson(s.data.data);
+              final data = s.data['data'];
+              return ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: data.length,
+                itemBuilder: (context, i) {
+                  // final item = offerList[index];
+                  return InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.rightToLeft,
+                              child: ProductList()));
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(
+                        top: fixPadding * 2.0,
+                        right: fixPadding * 2.0,
+                        left: fixPadding * 2.0,
+                        bottom:
+                            (i == (data.length - 1)) ? fixPadding * 2.0 : 0.0,
+                      ),
+                      padding: EdgeInsets.all(fixPadding * 2.0),
+                      decoration: BoxDecoration(
+                        color: whiteColor,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(width: 0.2, color: primaryColor),
+                        boxShadow: <BoxShadow>[
+                          BoxShadow(
+                            blurRadius: 1.5,
+                            spreadRadius: 1.5,
+                            color: Colors.grey.shade200,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(data[i]['name'],
+                                  style: primaryColorHeadingStyle),
+                              const SizedBox(height: 4.0),
+                              Text("Upto ${data[i]['discount']}% off",
+                                  style: primaryColorNormalThinTextStyle),
+                            ],
+                          ),
+                          Container(
+                            width: 100.0,
+                            height: 100.0,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(imagebaseurlold +
+                                    data[i]['productPictures'][0]
+                                            ['originalname']
+                                        .toString()),
+                                fit: BoxFit.fitHeight,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          }
-          return const Center(
-              child: Text(
-                "OOPS! NO DATA!",
-                style: TextStyle(color: Colors.white),
-              ));
-        }
-      ),
+                  );
+                },
+              );
+            }
+            return const Center(
+                child: Text(
+              "OOPS! NO DATA!",
+              style: TextStyle(color: Colors.white),
+            ));
+          }),
     );
   }
 }

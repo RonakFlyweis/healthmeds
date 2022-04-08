@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:newhealthapp/Model/Banner/Bannerm.dart';
 import 'package:newhealthapp/Model/CartItemModel/cartmodel.dart';
 import 'package:newhealthapp/Model/DealOfTheDayM/dealoftheday.dart';
@@ -14,6 +15,7 @@ import 'package:newhealthapp/Model/Handpicked/handpick.dart';
 import 'package:newhealthapp/Model/TopCategory/viewcategories.dart';
 import 'package:newhealthapp/api/api_endpoint.dart';
 import 'package:newhealthapp/api/api_provider.dart';
+import 'package:newhealthapp/api/api_response.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/cart_payment/cart.dart';
 import 'package:newhealthapp/pages/choose_location_address/choose_location.dart';
@@ -25,6 +27,7 @@ import 'package:newhealthapp/pages/productaddtocard/productaddtocart.dart';
 import 'package:newhealthapp/pages/products_list/productList.dart';
 import 'package:newhealthapp/pages/products_list/product_list.dart';
 import 'package:newhealthapp/pages/search/search.dart';
+import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:page_transition/page_transition.dart';
 import 'discount_grid.dart';
 import 'featured_brand_grid.dart';
@@ -35,13 +38,15 @@ import 'package:blinking_text/blinking_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+late String user_address;
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  String loc = 'select location';
+  String loc = 'Select Location';
   String? receivedAddress;
   int notificationCount = 0;
   String PhoneNumber = '9876543210';
@@ -68,7 +73,7 @@ class _HomeState extends State<Home> {
     // final url = urldata.
   }
 */
-  var addressadd;
+  var addressAdd;
 
   // gettopcategoryitems() async {
   //   try {
@@ -100,8 +105,9 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    getphonenumber();
-    getAdress();
+    setAddress();
+    getPhoneNumber();
+    getAddress();
     gethandpickerdata();
     getFeaturedata();
     getDealOfThedata();
@@ -110,26 +116,25 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
-  Future SetAdress() async {
+  Future setAddress() async {
     Future<SharedPreferences> s = SharedPreferences.getInstance();
     SharedPreferences sp = await s;
     sp.setString("ADDRESS", "$loc");
   }
 
-  Future getAdress() async {
+  Future getAddress() async {
     Future<SharedPreferences> s = SharedPreferences.getInstance();
     SharedPreferences sp = await s;
-    // addressadd ='';
-    addressadd = sp.getString("ADDRESS");
-    print("======Address ADDED=== $addressadd");
+    addressAdd = sp.getString("ADDRESS");
+    print("======Address ADDED=== $addressAdd");
   }
 
-  openwhatsapp() async {
+  openWhatsapp() async {
     //TODO add respective numbers and link
     var whatsapp = "+917999590290";
     var whatsappURl_android =
-        "whatsapp://send?phone=" + whatsapp + "&text=hello";
-    var whatappURL_ios = "https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
+        "whatsapp://send?phone=" + whatsapp + "&text=Hello";
+    var whatappURL_ios = "https://wa.me/$whatsapp?text=${Uri.parse("Hello")}";
     if (Platform.isIOS) {
       // for iOS phone only
       if (await canLaunch(whatappURL_ios)) {
@@ -158,8 +163,8 @@ class _HomeState extends State<Home> {
     });
   }
 
-  getphonenumber() async {
-    final cp = await ApiProvider().postandGet();
+  getPhoneNumber() async {
+    final ApiResponse cp = await ApiProvider().postandGet();
     List<PhoneNumbermodel> item = phoneNumbermodelFromJson(cp.data);
     setState(() {
       PhoneNumber = (item.length <= 0 ? "+919876543210" : item[0].phone)!;
@@ -205,10 +210,16 @@ class _HomeState extends State<Home> {
                       Future<SharedPreferences> s =
                           SharedPreferences.getInstance();
                       SharedPreferences sp = await s;
+                      print(value);
+                      if (value != null) {
+                        address = value;
+                      } else {
+                        address = address;
+                      }
+
                       sp.setString("ADDRESS", "$value");
-                      // SetAdress();
                       setState(() {});
-                      getAdress();
+                      getAddress();
                     });
                     print('here');
                     print(receivedAddress);
@@ -218,18 +229,15 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: 150,
+                        width: MediaQuery.of(context).size.width * 0.3,
                         child: Text(
-                          addressadd != null ? "${addressadd} " : " No Address",
-                          // receivedAddress != null
-                          //     ? "${receivedAddress} "
-                          //     : " No Address",
+                          //address ?? addressAdd ?? 'No Address',
+                          address,
                           style: TextStyle(
-                            fontSize: 15.0,
-                            overflow: TextOverflow.ellipsis,
-                            color: whiteColor,
-                            fontWeight: FontWeight.w500,
-                          ),
+                              fontSize: 15.0,
+                              color: whiteColor,
+                              fontWeight: FontWeight.w500,
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ),
                       Icon(Icons.keyboard_arrow_down,
@@ -307,14 +315,7 @@ class _HomeState extends State<Home> {
               ),
               InkWell(
                 onTap: () async {
-                  await openwhatsapp();
-                  // String url =
-                  //     "https://wa.me/${PhoneNumber}?text=Hey buddy, try this super cool new app!";
-                  // if (await canLaunch(url)) {
-                  //   await launch(url);
-                  // } else {
-                  //   throw 'Could not launch $url';
-                  // }
+                  await openWhatsapp();
                 },
                 child: BlinkText(
                   "Didn't find required medicine! Click here to chat instantly on whatsapp",
@@ -326,7 +327,6 @@ class _HomeState extends State<Home> {
                   // durtaion: Duration(seconds: 1)
                 ),
               ),
-              // TextButton(onPressed: (){}, child: Text("Didn't find required medicine! Click on whatsapp symbol to chat instantly",style: TextStyle(color: Colors.black),))
             ]),
           ),
         ),
@@ -340,30 +340,26 @@ class _HomeState extends State<Home> {
               future: getBannerdata(),
               builder: (BuildContext context, AsyncSnapshot s) {
                 if (s.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: SizedBox(
+                    child: CircularProgressIndicator(),
+                    height: 40,
+                    width: 40,
+                  ));
                 } else if (s.hasData &&
                     s.connectionState == ConnectionState.done) {
                   final urldata = bannerGetMFromJson(s.data.data);
-                  print("here");
-                  print(urldata);
+                  // print("here");
+                  // print(urldata);
                   return Swiper(
                     itemBuilder: (BuildContext context, int index) {
                       return FadeInImage.assetNetwork(
-                        placeholder: cupertinoActivityIndicator,
+                        placeholder: cupertinoActivityIndicatorSmall,
                         placeholderCacheHeight: 20,
                         image: imagebaseurl +
                             urldata.data![index].bannerImage.toString(),
-                        // image:
-                        //     imagebaseurl + urldata.data![index]['bannerImage'],
                         fit: BoxFit.cover,
-                      )
-                          /*Image.network(
-                              imagebaseurl +
-                                  urldata.data![index].bannerImage.toString(),
-                              fit: BoxFit.cover,
-                            )*/
-                          ;
-                      // imgLists[index].bannerImage
+                      );
                     },
                     autoplay: true,
                     itemCount:

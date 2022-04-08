@@ -4,6 +4,8 @@ import 'package:newhealthapp/pages/home/home.dart';
 import 'package:newhealthapp/pages/notification/notification.dart';
 import 'package:newhealthapp/pages/profile/profile.dart';
 
+var address = 'Select Address';
+
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
@@ -12,8 +14,8 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  int i = 0;
 
+  int i = 0;
   List<Widget> page = [Home(), HealthCare(), Notifications(), Profile()];
 
   @override
@@ -30,17 +32,9 @@ class _MainPageState extends State<MainPage> {
         items: [
           BottomNavigationBarItem(
               icon: i == 0
-                  ? const Icon(
-                      Icons.home,
-                      size: 30,
-                      color: Colors.teal,
-                    )
-                  : const Icon(
-                      Icons.home,
-                      size: 30,
-                      color: Colors.blueGrey,
-                    ),
-              label: 'home'),
+                  ? const Icon(Icons.home, size: 30, color: Colors.teal)
+                  : const Icon(Icons.home, size: 30, color: Colors.blueGrey),
+              label: 'Home'),
           BottomNavigationBarItem(
             icon: i == 1
                 ? const Icon(Icons.sentiment_very_satisfied,

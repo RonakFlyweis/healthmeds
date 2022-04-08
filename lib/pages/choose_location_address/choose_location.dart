@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -32,7 +31,7 @@ class _ChooseLocationState extends State<ChooseLocation> {
     showAddressApi();
   }
 
-  Future getAdress() async {
+  Future getAddress() async {
     Future<SharedPreferences> s = SharedPreferences.getInstance();
     SharedPreferences sp = await s;
     var addressadd = sp.getString("ADDRESS");
@@ -42,11 +41,15 @@ class _ChooseLocationState extends State<ChooseLocation> {
   showAddressApi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString("AUTH_KEY");
-    print('Token:' + token.toString());
+    print('Token Bearer:' + token.toString());
     Uri url = Uri.parse('https://helthmade-1234.herokuapp.com/getAddress');
-    http.Response response = await http.get(url, headers: {"Cookie": "$token"});
+    http.Response response = await http.get(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    });
+    print(response.request);
     print(response.statusCode);
-    if (response.statusCode == 201) {
+    if (response.statusCode >= 200 && response.statusCode <= 210) {
       address = addressModelFromJson(response.body);
       print(address);
       setState(() {
@@ -324,13 +327,16 @@ class _ChooseLocationState extends State<ChooseLocation> {
                                 widthSpace,
                                 InkWell(
                                   onTap: () {
-                                    getAdress();
+                                    getAddress();
                                     Navigator.push(
-                                        context,
-                                        PageTransition(
-                                            type:
-                                                PageTransitionType.rightToLeft,
-                                            child: AddAddress()));
+                                            context,
+                                            PageTransition(
+                                                type: PageTransitionType
+                                                    .rightToLeft,
+                                                child: AddAddress()))
+                                        .then((value) {
+                                      setState(() {});
+                                    });
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.all(0.5),

@@ -13,6 +13,7 @@ import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 import 'package:newhealthapp/testpages/newbottomnavigation.dart';
 import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OTPScreen extends StatefulWidget {
   String phone;
@@ -321,14 +322,13 @@ class _OTPScreenState extends State<OTPScreen> {
                           EasyLoading.show(
                               status: 'Loading..', dismissOnTap: false);
 
-                          Response r = await ApiProvider().otpverify(
-                              widget.phone, widget.hash, otp);
+                          Response r = await ApiProvider()
+                              .otpverify(widget.phone, widget.hash, otp);
                           EasyLoading.dismiss();
                           var data = json.decode(r.body);
                           print("====userLogInOr = ${data['isUser']}");
                           if (r.statusCode >= 200 && r.statusCode < 210) {
-                            
-                            if(data['isUser'] == 1){
+                            if (data['isUser'] == 1) {
                               print("Usercheck 1");
                               EasyLoading.showToast(data['msg']);
                               Navigator.push(
@@ -336,8 +336,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                   PageTransition(
                                       type: PageTransitionType.rightToLeft,
                                       child: MainPage()));
-                            }
-                            else{
+                            } else {
                               EasyLoading.showToast(data['msg']);
                               Navigator.push(
                                   context,
@@ -345,7 +344,6 @@ class _OTPScreenState extends State<OTPScreen> {
                                       type: PageTransitionType.rightToLeft,
                                       child: Register()));
                             }
-
                           } else {
                             EasyLoading.showToast(data['msg']);
                           }

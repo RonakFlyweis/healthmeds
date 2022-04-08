@@ -8,9 +8,9 @@ import 'package:newhealthapp/api/api_endpoint.dart';
 import 'package:newhealthapp/api/api_provider.dart';
 import 'package:newhealthapp/api/api_response.dart';
 
-HandpickedGetM handpickedGetMFromJson(String str) => HandpickedGetM.fromJson(json.decode(str));
+HandpickedGetM handpickedGetMFromJson(String str) => HandpickedGetM.fromJson(jsonDecode(str));
 
-String handpickedGetMToJson(HandpickedGetM data) => json.encode(data.toJson());
+String handpickedGetMToJson(HandpickedGetM data) => jsonEncode(data.toJson());
 
 class HandpickedGetM {
   HandpickedGetM({

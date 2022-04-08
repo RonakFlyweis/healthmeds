@@ -46,25 +46,25 @@ class _AddAddressState extends State<AddAddress> {
   }
 
   addAddressApi() async {
-    EasyLoading.show(status: 'Loading.....', dismissOnTap: false);
-
+    EasyLoading.show(status: 'Adding new address..', dismissOnTap: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString("AUTH_KEY");
     print(token);
-    Uri url = Uri.parse('http://mern.online:5656/addAddress');
-    http.Response response = await http.post(url, body: {
-      "deliver_to": name.text,
-      "mobile": phone.text,
-      "house_number": building.text,
-      "street_name": street.text,
-      "pincode": pincode.text,
+    Uri url = Uri.parse('https://helthmade-1234.herokuapp.com/addAddress');
+    http.Response response = await http.post(url, body: jsonEncode({
+      "deliver_to": name.text.toString(),
+      "pincode": pincode.text.toString(),
+      "mobile": phone.text.toString(),
+      "house_number": building.text.toString(),
+      "street_name": street.text.toString(),
       "address_type": home == true
           ? "Home"
           : work == true
               ? "Work"
               : "Other"
-    }, headers: {
-      'Cookie': '$token',
+    }), headers: {
+      'Authorization': 'Bearer ${token}',
+      'Content-Type': 'application/json'
     });
     print(response.statusCode);
     print(name.text);
@@ -77,12 +77,13 @@ class _AddAddressState extends State<AddAddress> {
     print(work);
     print(other);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode >= 200 && response.statusCode <= 210) {
       EasyLoading.dismiss();
-      Navigator.pushAndRemoveUntil(
-          context,
-          PageTransition(type: PageTransitionType.rightToLeft, child: Home()),
-          (route) => false);
+      // Navigator.pushAndRemoveUntil(
+      //     context,
+      //     PageTransition(type: PageTransitionType.rightToLeft, child: Home()),
+      //     (route) => false);
+      Navigator.pop(context);
       print(response.body);
       var decodedData = json.decode(response.body);
 
@@ -90,6 +91,7 @@ class _AddAddressState extends State<AddAddress> {
     } else {
       var decodeData = json.decode(response.body);
       print(decodeData);
+      Navigator.pop(context);
       EasyLoading.dismiss();
       Fluttertoast.showToast(msg: 'Something went wrong');
     }
