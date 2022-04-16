@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:newhealthapp/Model/Banner/Bannerm.dart';
 import 'package:newhealthapp/Model/CartItemModel/cartmodel.dart';
@@ -23,6 +24,7 @@ import 'package:newhealthapp/pages/choose_location_address/select_address.dart';
 import 'package:newhealthapp/pages/dial_screen/callingScreen.dart';
 import 'package:newhealthapp/pages/home/prevoius_order_row.dart';
 import 'package:newhealthapp/pages/offer/offer.dart';
+import 'package:newhealthapp/pages/product/product.dart';
 import 'package:newhealthapp/pages/productaddtocard/productaddtocart.dart';
 import 'package:newhealthapp/pages/products_list/productList.dart';
 import 'package:newhealthapp/pages/products_list/product_list.dart';
@@ -49,67 +51,16 @@ class _HomeState extends State<Home> {
   String loc = 'Select Location';
   String? receivedAddress;
   int notificationCount = 0;
-  String PhoneNumber = '9876543210';
-
-  ///This method is used for fetch banner data
-/*
-  getAllBannerData() async {
-    try {
-      final cp = await ApiProvider().getReq(endpoint: getbannerurl);
-      if (cp.data[0] != null) {
-        // print("condition Check");
-        final urldata = bannerGetMFromJson(cp.data);
-        for (int i = 0; i < urldata.data!.length; i++) {
-          _item = urldata.data!.toList();
-        }
-        // for (int j = 0; j < _item!.length; j++) {
-        //   print("==getItem${_item![j].bannerImage}");
-        // }
-      }
-      setState(() {});
-    } catch (e) {
-      print(e);
-    }
-    // final url = urldata.
-  }
-*/
+  String PhoneNumber = '9010203889';
   var addressAdd;
-
-  // gettopcategoryitems() async {
-  //   try {
-  //     final cp = await ApiProvider().getReq(endpoint: categoryitemUrl);
-  //     // print("getCATEGORYITEMS:${cp.data}");
-  //     if (cp.data[0] != null) {
-  //       // print("condition Check");
-  //       List<ViewTopCategorym> urldata = viewTopCategorymFromJson(cp.data);
-  //       for (int i = 0; i < urldata.length; i++) {
-  //         // print((urldata[i].topCategories).toString());
-  //         // if (urldata[i].topCategories.toString().contains('yes')) {
-  //           _item1.add(CategorycheckGetM(
-  //               id: urldata[i].id,
-  //               image: urldata[i].image,
-  //               name: urldata[i].name));
-  //           print("${urldata[i].name}+${urldata[i].topCategories}");
-  //         }
-  //       // }
-  //       // for(int j =0 ; j<_item1.length;j++){
-  //       //   print("=====(GeT In  own List)= ${_item1[j].id} ${_item1[j].name}   ${_item1[j].image}");
-  //       // }
-  //     }
-  //     setState(() {});
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   // final url = urldata.
-  // }
 
   @override
   void initState() {
     setAddress();
     getPhoneNumber();
     getAddress();
-    gethandpickerdata();
-    getFeaturedata();
+    //gethandpickerdata();
+    //getFeaturedata();
     getDealOfThedata();
     showNotification();
     // TODO: implement initState
@@ -131,7 +82,7 @@ class _HomeState extends State<Home> {
 
   openWhatsapp() async {
     //TODO add respective numbers and link
-    var whatsapp = "+917999590290";
+    var whatsapp = "+919010203889";
     var whatsappURl_android =
         "whatsapp://send?phone=" + whatsapp + "&text=Hello";
     var whatappURL_ios = "https://wa.me/$whatsapp?text=${Uri.parse("Hello")}";
@@ -269,11 +220,23 @@ class _HomeState extends State<Home> {
                 color: Colors.white,
               ),
             ),
-            onPressed: () {
+            onPressed: () async {
+              EasyLoading.show(maskType: EasyLoadingMaskType.black);
+              final data = await ApiProvider.getcartItems();
+              final cartList;
+              if (data["data"].length == 0) {
+                cartList = [];
+              } else {
+                cartList = data["data"][0]["cartItems"];
+              }
+              EasyLoading.dismiss();
               Navigator.push(
                   context,
                   PageTransition(
-                      type: PageTransitionType.rightToLeft, child: Cart()));
+                      type: PageTransitionType.rightToLeft,
+                      child: Cart(
+                        cartList: cartList,
+                      )));
             },
           ),
         ],
@@ -333,7 +296,7 @@ class _HomeState extends State<Home> {
       ),
       body: ListView(
         children: [
-          /// Main Slider Start
+          /// Main Slider Start for Banner
           Container(
             height: 200,
             child: FutureBuilder(
@@ -377,7 +340,7 @@ class _HomeState extends State<Home> {
           ),
           // MainSlider(_item ?? []),
           // Main Slider Ends
-          // Previous Order Row Start
+          // Previous Order FRow Start
           PreviousOrder(),
           // Previous Order Row Ends
           // Doscount Grid Start
@@ -410,35 +373,50 @@ class _HomeState extends State<Home> {
                     child:
                         //todo need to uncomment
                         FutureBuilder(
-                      future: gethandpickerdata(),
+                      // future: gethandpickerdata(),
+                      future:
+                          ApiProvider.getReqBodyData(endpoint: gethandpickurl),
                       builder: (BuildContext context, AsyncSnapshot s) {
                         if (s.connectionState == ConnectionState.waiting) {
                           return const Center(
                               child: CircularProgressIndicator());
                         } else if (s.hasData &&
                             s.connectionState == ConnectionState.done) {
-                          HandpickedGetM items =
-                              handpickedGetMFromJson(s.data.data);
+                          // HandpickedGetM items =
+                          //     handpickedGetMFromJson(s.data.data);
+                          final data = s.data['data'];
+                          // print(
+                          //     'Hand picked data -----------------------------------------' +
+                          //         items.response!.length.toString());
+                          print(
+                              'Hand picked data -----------------------------------------' +
+                                  s.data['data'].length.toString());
                           return ListView.builder(
-                            itemCount: items.response!.length,
+                            // itemCount: items.response!.length,
+                            itemCount: data.length,
                             scrollDirection: Axis.horizontal,
                             physics: const BouncingScrollPhysics(),
                             itemBuilder: (context, index) {
                               // final item = handpickedItemList[index];
                               return InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      PageTransition(
-                                          type: PageTransitionType.rightToLeft,
-                                          child: ProductItem(
-                                            id: items.response![index].id,
-                                          )));
+                                  // Navigator.push(
+                                  //     context,
+                                  //     PageTransition(
+                                  //         type: PageTransitionType.rightToLeft,
+                                  //         child: Product(
+                                  //             productDetails: data[index])
+                                  //         // ProductItem(
+                                  //         //   //id: items.response![index].id,
+                                  //         //   id: data[index]['_id'],
+                                  //         // ),
+                                  //         ));
                                 },
                                 child: Container(
                                   width: 170.0,
                                   margin:
-                                      (index == (items.response!.length - 1))
+                                      // (index == (items.response!.length - 1))
+                                      (index == (data.length - 1))
                                           ? const EdgeInsets.only(
                                               left: 20.0, right: 20.0)
                                           : const EdgeInsets.only(left: 20.0),
@@ -447,11 +425,15 @@ class _HomeState extends State<Home> {
                                       Stack(
                                         children: [
                                           Hero(
-                                            tag: items.response![index]
-                                                        .productPictures![0] ==
+                                            // tag: items.response![index]
+                                            //             .productPictures![0] ==
+                                            //         null
+                                            tag: data[index]['productPictures']
+                                                        [0] ==
                                                     null
                                                 ? SizedBox()
-                                                : '${items.response![index].productPictures![0].filename}',
+                                                // : '${items.response![index].productPictures![0].filename}',
+                                                : '${data[index]['productPictures'][0]['filename']}',
                                             child: Container(
                                               width: 170.0,
                                               height: 170.0,
@@ -471,13 +453,18 @@ class _HomeState extends State<Home> {
                                                 decoration: BoxDecoration(
                                                   image: DecorationImage(
                                                     image: NetworkImage(
+                                                        // imagebaseurl +
+                                                        //     items
+                                                        //         .response![
+                                                        //             index]
+                                                        //         .productPictures![
+                                                        //             0]
+                                                        //         .filename
+                                                        //         .toString()),
                                                         imagebaseurl +
-                                                            items
-                                                                .response![
-                                                                    index]
-                                                                .productPictures![
-                                                                    0]
-                                                                .filename
+                                                            data[index]['productPictures']
+                                                                        [0]
+                                                                    ['filename']
                                                                 .toString()),
                                                     fit: BoxFit.fitHeight,
                                                   ),
@@ -503,7 +490,8 @@ class _HomeState extends State<Home> {
                                                 ),
                                               ),
                                               child: Text(
-                                                  "${items.response![index].discountPercentage} %"
+                                                  // "${items.response![index].discountPercentage} %"
+                                                  "${data[index]['discount']} %"
                                                   // item['offer'].toString(),
                                                   ,
                                                   style: thickWhiteTextStyle),
@@ -522,20 +510,22 @@ class _HomeState extends State<Home> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              items.response![index].title
-                                                  .toString(),
+                                              // items.response![index].title
+                                              //     .toString(),
+                                              data[index]['title'].toString(),
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                               style: blackHeadingStyle,
                                             ),
                                             const SizedBox(height: 3.0),
-                                            Text(
-                                              items.response![index].description
-                                                  .toString(),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: subHeadingStyle,
-                                            ),
+                                            // Text(
+                                            //   // items.response![index].description
+                                            //   //     .toString(),
+                                            //   data[index]['popular'].toString(),
+                                            //   maxLines: 1,
+                                            //   overflow: TextOverflow.ellipsis,
+                                            //   style: subHeadingStyle,
+                                            // ),
                                             const SizedBox(height: 3.0),
                                             Row(
                                               mainAxisAlignment:
@@ -544,12 +534,14 @@ class _HomeState extends State<Home> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 Text(
-                                                  '\₹ ${items.response![index].discountPrice}',
+                                                  // '\₹ ${items.response![index].discountPrice}',
+                                                  '\₹ ${data[index]['discount_price']}',
                                                   style: priceStyle,
                                                 ),
                                                 const SizedBox(width: 5.0),
                                                 Text(
-                                                  '\₹${items.response![index].price}',
+                                                  // '\₹${items.response![index].price}',
+                                                  '\₹${data[index]['price']}',
                                                   style: oldStyle,
                                                 ),
                                               ],
@@ -669,15 +661,16 @@ class _HomeState extends State<Home> {
                             itemBuilder: (context, index) {
                               // final item = handpickedItemList[index];
                               return InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      PageTransition(
-                                          type: PageTransitionType.rightToLeft,
-                                          child: ProductItem(
-                                            id: items.response![index].id,
-                                          )));
-                                },
+                                onTap: () {},
+                                // onTap: () {
+                                //   Navigator.push(
+                                //       context,
+                                //       PageTransition(
+                                //           type: PageTransitionType.rightToLeft,
+                                //           child: ProductItem(
+                                //             id: items.response![index].id,
+                                //           )));
+                                // },
                                 child: Container(
                                   width: 170.0,
                                   margin:
@@ -855,17 +848,18 @@ class _HomeState extends State<Home> {
                                     child: CircularProgressIndicator());
                               } else if (s.hasData &&
                                   s.connectionState == ConnectionState.done) {
-                                List<ViewTopCategorym> _item1 =
+                                List<ViewTopCategorym> item1 =
                                     viewTopCategorymFromJson(s.data.data);
                                 return GridView.builder(
                                     scrollDirection: Axis.horizontal,
                                     gridDelegate:
                                         const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount: 2,
-                                            crossAxisSpacing: 8,
-                                            mainAxisSpacing: 8),
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 8,
+                                      mainAxisSpacing: 8,
+                                    ),
                                     // padding: EdgeInsets.all(20),
-                                    itemCount: _item1.length,
+                                    itemCount: item1.length,
                                     itemBuilder: (BuildContext context, int i) {
                                       return InkWell(
                                         onTap: () {
@@ -875,10 +869,7 @@ class _HomeState extends State<Home> {
                                                   type: PageTransitionType
                                                       .rightToLeft,
                                                   child: ProductListAll(
-                                                    id: _item1[i]
-                                                        .categoryId!
-                                                        .id
-                                                        .toString(),
+                                                    id: item1[i].id.toString(),
                                                   )));
                                         },
                                         child: Container(
@@ -886,13 +877,13 @@ class _HomeState extends State<Home> {
                                           children: [
                                             Image.network(
                                               imagebaseurlold +
-                                                  _item1[i].image.toString(),
+                                                  item1[i].image.toString(),
                                               fit: BoxFit.fill,
                                             ),
                                             // Image.network(imagebaseurl+_item1[i].image.toString(),fit: BoxFit.cover,),
                                             SizedBox(
                                               child: Text(
-                                                  "${_item1[i].categoryId!.name.toString()}",
+                                                  "${item1[i].name.toString()}",
                                                   style: TextStyle(
                                                       fontSize: 15,
                                                       color: Colors.black,
@@ -926,16 +917,17 @@ class _HomeState extends State<Home> {
           // Need Help Start
           InkWell(
             onTap: () async {
-              const url =
-                  "https://wa.me/+9198111 24504?text=Hey buddy,Need help in HealthMed!";
-              if (await canLaunch(url)) {
-                await launch(url);
-              } else {
-                throw 'Could not launch $url';
-              }
+              // const url =
+              //     "https://wa.me/+9198111 24504?text=Hey buddy,Need help in HealthMed!";
+              // if (await canLaunch(url)) {
+              //   await launch(url);
+              // } else {
+              //   throw 'Could not launch $url';
+              // }
+              openWhatsapp();
             },
-            child: getTile(
-                Icon(Icons.headset_mic, color: primaryColor), 'Need Help?'),
+            child:
+                getTile(Icon(Icons.message, color: primaryColor), 'Need Help?'),
           ),
           // Need Help End
           heightSpace,

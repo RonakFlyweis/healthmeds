@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/order_medicines/previously_bought_item.dart';
 import 'package:page_transition/page_transition.dart';
 
-class PreviousOrder extends StatelessWidget {
+import '../../api/api_provider.dart';
+
+class PreviousOrder extends StatefulWidget {
+  @override
+  State<PreviousOrder> createState() => _PreviousOrderState();
+}
+
+class _PreviousOrderState extends State<PreviousOrder> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -15,12 +23,19 @@ class PreviousOrder extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           InkWell(
-            onTap: () {
+            onTap: () async {
+              EasyLoading.show();
+              final body = await ApiProvider.getReqBodyDataAuthorized(
+                  endpoint:
+                      'https://helthmade-1234.herokuapp.com/getPreviouslyBoughtItem');
+              EasyLoading.dismiss();
               Navigator.push(
                   context,
                   PageTransition(
                       type: PageTransitionType.rightToLeft,
-                      child: PreviouslyBoughtItem()));
+                      child: PreviouslyBoughtItem(
+                        previouslyBoughtItem: body['data']['items'],
+                      )));
             },
             child: Container(
               width: ((width / 2.0) - fixPadding * 2.5),
@@ -58,12 +73,19 @@ class PreviousOrder extends StatelessWidget {
             ),
           ),
           InkWell(
-            onTap: () {
+            onTap: () async {
+              EasyLoading.show();
+              final body = await ApiProvider.getReqBodyDataAuthorized(
+                  endpoint:
+                      'https://helthmade-1234.herokuapp.com/getPreviouslyBoughtItem');
+              EasyLoading.dismiss();
               Navigator.push(
                   context,
                   PageTransition(
                       type: PageTransitionType.rightToLeft,
-                      child: PreviouslyBoughtItem()));
+                      child: PreviouslyBoughtItem(
+                        previouslyBoughtItem: body['data']['items'],
+                      )));
             },
             child: Container(
               width: ((width / 2.0) - fixPadding * 2.5),

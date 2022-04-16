@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:newhealthapp/Model/CartItemModel/cartmodel.dart';
 import 'package:newhealthapp/Model/productsingleview/singleviewproductM.dart';
 import 'package:newhealthapp/api/api_endpoint.dart';
@@ -10,6 +11,7 @@ import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/cart_payment/cart.dart';
 import 'package:newhealthapp/pages/choose_location_address/choose_location.dart';
 import 'package:newhealthapp/pages/search/search.dart';
+import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +21,7 @@ class ProductItem extends StatefulWidget {
   String? id;
 
   ProductItem({
-    this.id,
+    required this.id,
   });
 
   @override
@@ -33,6 +35,7 @@ class _ProductItemState extends State<ProductItem> {
   int pricecount = 0;
   int? v;
   int? notificationCount = 0;
+  dynamic itemData;
   var addressadd;
 
   ///This method is used to show notification on but icon
@@ -46,7 +49,7 @@ class _ProductItemState extends State<ProductItem> {
   }
 
   ///This Method is used to get delivering addrress of product
-  Future getAdress() async {
+  Future getAddress() async {
     Future<SharedPreferences> s = SharedPreferences.getInstance();
     SharedPreferences sp = await s;
     addressadd = sp.getString("ADDRESS");
@@ -70,7 +73,7 @@ class _ProductItemState extends State<ProductItem> {
   void initState() {
     cartItem = 0;
     super.initState();
-    getAdress();
+    getAddress();
     showNotification();
     getprice();
     print("======1===>${widget.id}");
@@ -78,7 +81,6 @@ class _ProductItemState extends State<ProductItem> {
   }
 
   // late final productDetails;
-
   selectQtyDialogue() {
     double width = MediaQuery.of(context).size.width;
     showDialog(
@@ -124,7 +126,7 @@ class _ProductItemState extends State<ProductItem> {
                         setState(() {
                           addedToCart = false;
                           selectedQty = 0;
-                          cartItem = cartItem - 1;
+                          // cartItem = cartItem - 1;
                           Navigator.pop(context);
                         });
                       },
@@ -141,17 +143,11 @@ class _ProductItemState extends State<ProductItem> {
               InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem = 0;
-                    pricecount = v!;
-                  });
-                  setState(() {
                     selectedQty = 1;
-                    // if (!addedToCart) {
-                    cartItem = cartItem + 1;
-                    pricecount = pricecount * cartItem;
-
-                    // }
-                    // addedToCart = true;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
                   });
                   Navigator.pop(context);
                 },
@@ -186,17 +182,11 @@ class _ProductItemState extends State<ProductItem> {
               InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem = 0;
-                    pricecount = v!;
-                  });
-                  setState(() {
                     selectedQty = 2;
-                    // if (!addedToCart) {
-                    cartItem = cartItem + 2;
-                    pricecount = pricecount * cartItem;
-
-                    // }
-                    // addedToCart = true;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
                   });
                   Navigator.pop(context);
                 },
@@ -231,16 +221,11 @@ class _ProductItemState extends State<ProductItem> {
               InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem = 0;
-                    pricecount = v!;
-                  });
-                  setState(() {
                     selectedQty = 3;
-                    // if (!addedToCart) {
-                    cartItem = cartItem + 3;
-                    pricecount = pricecount * cartItem;
-                    // }
-                    // addedToCart = true;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
                   });
                   Navigator.pop(context);
                 },
@@ -275,16 +260,11 @@ class _ProductItemState extends State<ProductItem> {
               InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem = 0;
-                    pricecount = v!;
-                  });
-                  setState(() {
                     selectedQty = 4;
-                    // if (!addedToCart) {
-                    cartItem = cartItem + 4;
-                    pricecount = pricecount * cartItem;
-                    // }
-                    // addedToCart = true;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
                   });
                   Navigator.pop(context);
                 },
@@ -319,16 +299,11 @@ class _ProductItemState extends State<ProductItem> {
               InkWell(
                 onTap: () {
                   setState(() {
-                    cartItem = 0;
-                    pricecount = v!;
-                  });
-                  setState(() {
                     selectedQty = 5;
-                    // if (!addedToCart) {
-                    cartItem = cartItem + 5;
-                    pricecount = pricecount * cartItem;
-                    // }
-                    // addedToCart = true;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
                   });
                   Navigator.pop(context);
                 },
@@ -372,6 +347,299 @@ class _ProductItemState extends State<ProductItem> {
     );
   }
 
+  // selectQtyDialogue() {
+  //   double width = MediaQuery.of(context).size.width;
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       // return object of type Dialog
+  //       return Dialog(
+  //         elevation: 0.0,
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+  //         child: Wrap(
+  //           children: [
+  //             Container(
+  //               padding: EdgeInsets.only(
+  //                   right: fixPadding * 1.5,
+  //                   left: fixPadding * 1.5,
+  //                   top: fixPadding,
+  //                   bottom: fixPadding),
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Text('Select Quantity', style: primaryColorBigHeadingStyle),
+  //                   widthSpace,
+  //                   IconButton(
+  //                     icon: Icon(Icons.close, color: primaryColor),
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                     },
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             Container(
+  //               width: width,
+  //               height: 0.6,
+  //               color: primaryColor,
+  //             ),
+  //
+  //             (addedToCart)
+  //                 ? InkWell(
+  //                     onTap: () {
+  //                       setState(() {
+  //                         addedToCart = false;
+  //                         selectedQty = 0;
+  //                         cartItem = cartItem - 1;
+  //                         Navigator.pop(context);
+  //                       });
+  //                     },
+  //                     child: Container(
+  //                       width: width,
+  //                       padding: EdgeInsets.all(fixPadding * 1.5),
+  //                       color: Colors.transparent,
+  //                       child: Text('Remove item',
+  //                           style: primaryColorHeadingStyle),
+  //                     ),
+  //                   )
+  //                 : Container(),
+  //             // 1
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   cartItem = 0;
+  //                   pricecount = v!;
+  //                 });
+  //                 setState(() {
+  //                   selectedQty = 1;
+  //                   // if (!addedToCart) {
+  //                   cartItem = cartItem + 1;
+  //                   pricecount = pricecount * cartItem;
+  //
+  //                   // }
+  //                   // addedToCart = true;
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color:
+  //                     (selectedQty == 1) ? lightGreyColor : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('1', style: primaryColorHeadingStyle),
+  //                     (selectedQty == 1)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             // 2
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   cartItem = 0;
+  //                   pricecount = v!;
+  //                 });
+  //                 setState(() {
+  //                   selectedQty = 2;
+  //                   // if (!addedToCart) {
+  //                   cartItem = cartItem + 2;
+  //                   pricecount = pricecount * cartItem;
+  //
+  //                   // }
+  //                   // addedToCart = true;
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color:
+  //                     (selectedQty == 2) ? lightGreyColor : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('2', style: primaryColorHeadingStyle),
+  //                     (selectedQty == 2)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             // 3
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   cartItem = 0;
+  //                   pricecount = v!;
+  //                 });
+  //                 setState(() {
+  //                   selectedQty = 3;
+  //                   // if (!addedToCart) {
+  //                   cartItem = cartItem + 3;
+  //                   pricecount = pricecount * cartItem;
+  //                   // }
+  //                   // addedToCart = true;
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color:
+  //                     (selectedQty == 3) ? lightGreyColor : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('3', style: primaryColorHeadingStyle),
+  //                     (selectedQty == 3)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             //4
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   cartItem = 0;
+  //                   pricecount = v!;
+  //                 });
+  //                 setState(() {
+  //                   selectedQty = 4;
+  //                   // if (!addedToCart) {
+  //                   cartItem = cartItem + 4;
+  //                   pricecount = pricecount * cartItem;
+  //                   // }
+  //                   // addedToCart = true;
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color:
+  //                     (selectedQty == 4) ? lightGreyColor : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('4', style: primaryColorHeadingStyle),
+  //                     (selectedQty == 4)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             // 5
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   cartItem = 0;
+  //                   pricecount = v!;
+  //                 });
+  //                 setState(() {
+  //                   selectedQty = 5;
+  //                   // if (!addedToCart) {
+  //                   cartItem = cartItem + 5;
+  //                   pricecount = pricecount * cartItem;
+  //                   // }
+  //                   // addedToCart = true;
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color:
+  //                     (selectedQty == 5) ? lightGreyColor : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Row(
+  //                       crossAxisAlignment: CrossAxisAlignment.center,
+  //                       children: [
+  //                         Text('5', style: primaryColorHeadingStyle),
+  //                         widthSpace,
+  //                         Text('Max Qty', style: lightPrimaryColorTextStyle),
+  //                       ],
+  //                     ),
+  //                     (selectedQty == 5)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     // final productDetails = widget.productDetails;
@@ -407,11 +675,23 @@ class _ProductItemState extends State<ProductItem> {
                   color: Colors.white,
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
+                EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                final data = await ApiProvider.getcartItems();
+                final cartList;
+                if (data["data"].length == 0) {
+                  cartList = [];
+                } else {
+                  cartList = data["data"][0]["cartItems"];
+                }
+                EasyLoading.dismiss();
                 Navigator.push(
                     context,
                     PageTransition(
-                        type: PageTransitionType.rightToLeft, child: Cart()));
+                        type: PageTransitionType.rightToLeft,
+                        child: Cart(
+                          cartList: cartList,
+                        )));
               },
             ),
           ],
@@ -430,30 +710,41 @@ class _ProductItemState extends State<ProductItem> {
               children: <Widget>[
                 SizedBox(
                   width: 90.0,
-                  child: Text('$cartItem Item in Cart',
+                  child: Text('$selectedQty quantity selected',
                       style: primaryColorHeadingStyle),
                 ),
-                SizedBox(
-                  width: 100.0,
-                  child: Text('₹ $pricecount', style: primaryColorHeadingStyle),
-                ),
+                // SizedBox(
+                //   width: 100.0,
+                //   child: Text('₹ $pricecount', style: primaryColorHeadingStyle),
+                // ),
                 InkWell(
                   borderRadius: BorderRadius.circular(5.0),
-                  onTap: () {
+                  onTap: () async {
                     if (selectedQty == 0) {
                       Fluttertoast.showToast(msg: ' Plz Selected Quantity');
                     } else {
-                      ApiProvider()
+                      EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                      await ApiProvider()
                           .addtocart(widget.id, '$selectedQty', '$pricecount');
+                      final data = await ApiProvider.getcartItems();
+                      final cartList;
+                      if (data["data"].length == 0) {
+                        cartList = [];
+                      } else {
+                        cartList = data["data"][0]["cartItems"];
+                      }
+                      EasyLoading.dismiss();
                       Navigator.push(
                           context,
                           PageTransition(
                               type: PageTransitionType.rightToLeft,
-                              child: Cart()));
+                              child: Cart(
+                                cartList: cartList,
+                              )));
                     }
                   },
                   child: Container(
-                    width: 100,
+                    width: 200,
                     height: 50.0,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
@@ -461,7 +752,7 @@ class _ProductItemState extends State<ProductItem> {
                       color: primaryColor,
                     ),
                     child: Text(
-                      'View Cart',
+                      'Add to cart',
                       style: appBarTitleStyle,
                     ),
                   ),
@@ -500,32 +791,66 @@ class _ProductItemState extends State<ProductItem> {
                               children: [
                                 Text('Deliver To', style: subHeadingStyle),
                                 heightSpace,
-                                Text(
-                                    addressadd != null
-                                        ? "${addressadd} "
-                                        : " No Address",
-                                    style: primaryColorHeadingStyle),
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.5,
+                                  child: Text(
+                                    address,
+                                    style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: primaryColor,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.2,
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                )
                               ],
                             ),
                           ],
                         ),
                         InkWell(
-                          onTap: () {
+                          onTap: () async {
                             Navigator.push(
-                                    context,
-                                    PageTransition(
-                                        type: PageTransitionType.rightToLeft,
-                                        child: ChooseLocation()))
-                                .then((value) async {
+                                context,
+                                PageTransition(
+                                  type: PageTransitionType.rightToLeft,
+                                  // child: SelectAddress(),
+                                  child: ChooseLocation(),
+                                )).then((value) async {
+                              // loc = value;
                               Future<SharedPreferences> s =
                                   SharedPreferences.getInstance();
                               SharedPreferences sp = await s;
+                              print(value);
+                              if (value != null) {
+                                address = value;
+                              } else {
+                                address = address;
+                              }
+
                               sp.setString("ADDRESS", "$value");
-                              // SetAdress();
                               setState(() {});
-                              getAdress();
+                              getAddress();
                             });
+                            print('here');
+                            //print(receivedAddress);
                           },
+                          // {
+                          //   Navigator.push(
+                          //           context,
+                          //           PageTransition(
+                          //               type: PageTransitionType.rightToLeft,
+                          //               child: ChooseLocation()))
+                          //       .then((value) async {
+                          //     Future<SharedPreferences> s =
+                          //         SharedPreferences.getInstance();
+                          //     SharedPreferences sp = await s;
+                          //     sp.setString("ADDRESS", "$value");
+                          //     // SetAdress();
+                          //     setState(() {});
+                          //     getAdress();
+                          //   });
+                          // },
                           child: Text('Change',
                               style: primaryColorBigHeadingStyle),
                         ),
@@ -642,7 +967,10 @@ class _ProductItemState extends State<ProductItem> {
                                   color:
                                       (addedToCart) ? whiteColor : primaryColor,
                                 ),
-                                child: Text('Select Qty',
+                                child: Text(
+                                    selectedQty == 0
+                                        ? 'Select Qty'
+                                        : selectedQty.toString(),
                                     style: (addedToCart)
                                         ? primaryColorBigHeadingStyle
                                         : whiteBigHeadingStyle),

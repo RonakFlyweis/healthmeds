@@ -147,6 +147,6 @@ class ProductPicture {
 Future<ApiResponse> gethandpickerdata() async {
   ApiResponse cp = await ApiProvider()
       .getReq(endpoint:gethandpickurl);
-  // print("==gethandpickurl=>${cp.data}");
+  print("==gethandpickurl=>${cp.data}");
   return cp;
 }

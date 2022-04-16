@@ -17,6 +17,7 @@ class DiscountGrid extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          /// Order Medicines
           InkWell(
             onTap: () {
               Navigator.push(
@@ -60,6 +61,7 @@ class DiscountGrid extends StatelessWidget {
               ),
             ),
           ),
+          /// Healthcare Products
           InkWell(
             onTap: () {
 

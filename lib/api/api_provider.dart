@@ -116,6 +116,93 @@ class ApiProvider {
     }
   }
 
+  addPrescription({required List<String> prescriptionFilePath}) async {
+    final _sp = await s;
+    var token = _sp.getString("AUTH_KEY");
+    var headers = {'Authorization': 'Bearer ${token}'};
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('https://helthmade-1234.herokuapp.com/prescrption'));
+    for (int i = 0; i < prescriptionFilePath.length; i++) {
+      request.files.add(await http.MultipartFile.fromPath(
+          'myField', prescriptionFilePath[i]));
+    }
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode.toString() + "prescription status code");
+    if (response.statusCode >= 200 && response.statusCode <= 210) {
+      print(await response.stream.bytesToString());
+      EasyLoading.showToast('Prescription Added');
+    } else {
+      print(response.reasonPhrase);
+      EasyLoading.showToast('Some error occured try again later');
+    }
+  }
+
+  static getReqBodyData({required String endpoint, String query = ""}) async {
+    final String url = endpoint + query;
+    // final _sp = await s;
+    // var token = _sp.getString("AUTH_KEY");
+    // //var header = {'accessToken': '$token'};
+    var header = {
+      'Content-Type': 'application/json',
+      // 'Authorization': 'Bearer ${token}'
+    };
+    print(url);
+    try {
+      Response getReq = await get(Uri.parse(url), headers: header);
+      print(getReq.request.toString() + " " + getReq.statusCode.toString());
+      return jsonDecode(getReq.body);
+    } catch (e) {
+      return ApiResponse(error: true, errorMessage: e.toString());
+    }
+  }
+
+  static getReqBodyDataAuthorized({required String endpoint, String query = ""}) async {
+    final String url = endpoint;
+    final _sp = await SharedPreferences.getInstance();
+    var token = _sp.getString("AUTH_KEY");
+    print(token);
+    var headers = {
+      'Authorization': 'Bearer ${token}'
+    };
+    print(url);
+    try {
+      print('In try block');
+      Response getReq = await http.post(Uri.parse(url), headers: headers);
+      print(getReq.request.toString() + " " + getReq.statusCode.toString());
+      print('got here now I will decode body');
+      if(getReq.statusCode>=200 && getReq.statusCode<=210){
+        return jsonDecode(getReq.body);
+      }
+      else{
+        return 'ronak';
+      }
+    } catch (e) {
+      print('In catch block');
+      return ApiResponse(error: true, errorMessage: e.toString());
+    }
+  }
+
+  static getcartItems() async {
+    final String url = 'https://helthmade-1234.herokuapp.com/user/getCartItems';
+    final _sp = await SharedPreferences.getInstance();
+    var token = _sp.getString("AUTH_KEY");
+    //var header = {'accessToken': '$token'};
+    var header = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token}'
+    };
+    print(url);
+    try {
+      Response getReq = await get(Uri.parse(url), headers: header);
+      print(getReq.request.toString() + " " + getReq.statusCode.toString());
+      return jsonDecode(getReq.body);
+    } catch (e) {
+      return ApiResponse(error: true, errorMessage: e.toString());
+    }
+  }
+
   Future<ApiResponse> postReq({required String endpoint}) async {
     final _sp = await s;
     var token = _sp.getString("AUTH_KEY");
@@ -210,23 +297,28 @@ class ApiProvider {
   Future addtocart(var productid, var quantity, var price) async {
     final _sp = await s;
     var token = _sp.getString("AUTH_KEY");
-    print('===========>${token}');
-
-    // var header = {'accessToken': '$token'};
-
-    //var headers = {'Content-Type': 'application/json', 'Cookie': '$token'};
     var headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${token}'
     };
+    var body = {
+      "cartItems": [
+        {
+          "product": productid.toString(),
+          "quantity": quantity.toString(),
+          "price": price.toString()
+        }
+      ]
+    };
 
     try {
       var request = http.Request('POST', Uri.parse(getaddcarturl));
-      request.body = json.encode({
-        "cartItems": [
-          {"product": productid, "quantity": quantity, "price": price}
-        ]
-      });
+      // request.body = json.encode({
+      //   "cartItems": [
+      //     {"product": productid, "quantity": quantity, "price": price}
+      //   ]
+      // });
+      request.body = jsonEncode(body);
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
@@ -244,6 +336,59 @@ class ApiProvider {
       }
     } catch (e) {
       return ApiResponse(error: true, errorMessage: e.toString());
+    }
+  }
+
+  removeFromCart(String productId) async {
+    final sp = await s;
+    var token = sp.getString("AUTH_KEY");
+    var headers = {
+      'Authorization': 'Bearer ${token}',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request('POST',
+        Uri.parse('https://helthmade-1234.herokuapp.com/user/removeCartItem'));
+    request.body = json.encode({"productId": productId});
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode >= 200 && response.statusCode <= 210) {
+      Fluttertoast.showToast(msg: 'Product removed from cart');
+      print(await response.stream.bytesToString());
+    } else {
+      Fluttertoast.showToast(msg: 'Something went wrong try again later');
+      print(response.reasonPhrase);
+    }
+  }
+
+  addOrder(String paymentType, String amount, String paymentStatus,
+      String orderStatus, List productItems) async {
+    final sp = await s;
+    var token = sp.getString("AUTH_KEY");
+    var headers = {
+      'Authorization': 'Bearer ${token}',
+      'Content-Type': 'application/json'
+    };
+    var request = http.Request(
+        'POST', Uri.parse('https://helthmade-1234.herokuapp.com/addOrder'));
+    request.body = jsonEncode({
+      "paymentType": paymentType,
+      "totalAmount": amount,
+      "paymentStatus": paymentStatus,
+      "orderStatus": orderStatus,
+      "items": productItems
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    print(response.statusCode);
+    if (response.statusCode >= 200 && response.statusCode <= 210) {
+      Fluttertoast.showToast(msg: 'Order added successfully');
+      print(await response.stream.bytesToString());
+    } else {
+      Fluttertoast.showToast(msg: 'Something went wrong try again later');
+      print(response.reasonPhrase);
     }
   }
 

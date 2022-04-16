@@ -1,12 +1,14 @@
 import 'package:badges/badges.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/cart_payment/cart.dart';
 import 'package:newhealthapp/pages/home/prevoius_order_row.dart';
 import 'package:newhealthapp/pages/search/search.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../../api/api_provider.dart';
 import 'order_via_prescription.dart';
 
 class OrderMedicines extends StatelessWidget {
@@ -30,11 +32,20 @@ class OrderMedicines extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            onPressed: () {
+            onPressed: () async {
+              EasyLoading.show(maskType: EasyLoadingMaskType.black);
+              final data = await ApiProvider.getcartItems();
+              final cartList;
+              if (data["data"].length == 0) {
+                cartList = [];
+              } else {
+                cartList = data["data"][0]["cartItems"];
+              }
+              EasyLoading.dismiss();
               Navigator.push(
                   context,
                   PageTransition(
-                      type: PageTransitionType.rightToLeft, child: Cart()));
+                      type: PageTransitionType.rightToLeft, child: Cart(cartList: cartList)));
             },
           ),
         ],
@@ -160,7 +171,7 @@ class OrderMedicines extends StatelessWidget {
           // Previous Order Row Start
           PreviousOrder(),
           // Previous Order Row Ends
-          // Order via Prescription Row Start
+          /// Order via Prescription Row Start
           InkWell(
             onTap: () {
               Navigator.push(

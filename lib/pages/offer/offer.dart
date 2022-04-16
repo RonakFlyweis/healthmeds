@@ -1,5 +1,6 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // import 'package:healthmeds/pages/cart_payment/cart_payment.dart';
 // import 'package:healthmeds/pages/offer/offer_detail.dart';
@@ -9,6 +10,7 @@ import 'package:newhealthapp/pages/cart_payment/cart.dart';
 import 'package:newhealthapp/pages/search/search.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../../api/api_provider.dart';
 import 'offer_detail.dart';
 
 class Offer extends StatefulWidget {
@@ -51,7 +53,7 @@ class _OfferState extends State<Offer> {
               Icons.search,
               color: Colors.white,
             ),
-            onPressed: () {
+            onPressed: (){
               Navigator.push(
                   context,
                   PageTransition(
@@ -67,11 +69,20 @@ class _OfferState extends State<Offer> {
                 color: Colors.white,
               ),
             ),
-            onPressed: () {
+            onPressed: () async{
+              EasyLoading.show(maskType: EasyLoadingMaskType.black);
+              final data = await ApiProvider.getcartItems();
+              final cartList;
+              if (data["data"].length == 0) {
+                cartList = [];
+              } else {
+                cartList = data["data"][0]["cartItems"];
+              }
+              EasyLoading.dismiss();
               Navigator.push(
                   context,
                   PageTransition(
-                      type: PageTransitionType.rightToLeft, child: Cart()));
+                      type: PageTransitionType.rightToLeft, child: Cart(cartList: cartList,)));
             },
           ),
         ],

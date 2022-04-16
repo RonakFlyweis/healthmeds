@@ -1,18 +1,27 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:newhealthapp/api/api_provider.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/cart_payment/payment.dart';
 import 'package:newhealthapp/pages/choose_location_address/select_address.dart';
 import 'package:newhealthapp/pages/home/handpicked_item_grid.dart';
 import 'package:newhealthapp/pages/order_medicines/order_medicines.dart';
 import 'package:newhealthapp/pages/search/search.dart';
+import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:newhealthapp/widgets/column_builder.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../api/api_endpoint.dart';
+import '../choose_location_address/choose_location.dart';
 import '../terms_and_conditions.dart';
 
 class Cart extends StatefulWidget {
+  final cartList;
+
+  const Cart({Key? key, required this.cartList}) : super(key: key);
   @override
   _CartState createState() => _CartState();
 }
@@ -20,30 +29,18 @@ class Cart extends StatefulWidget {
 class _CartState extends State<Cart> {
   int cartValue = 0;
   int totalOldPrice = 0;
-  late int deliveryCharge;
+  late int deliveryCharge = 0;
+  bool isLoading = true;
 
-
-  final cartItemList = [
-    {
-      'image': 'assets/handpicked_item/handpicked_item_5.png',
-      'name': 'Revital H Health Supplement Capsules Bottle of 30',
-      'companyName': 'Revital',
-      'qty': '30 Capsules(S) in Bottle',
-      'price': 5,
-      'oldPrice': 6,
-      'offer': '15% OFF',
-      'selectedQty': 1,
-    }
-  ];
+  dynamic cartList;
 
   final couponList = [
     {
       'image': 'assets/offer_icon/amazon_pay.png',
       'code': 'No Code Required',
-      'title':
-      'Additional cashback upto ₹5 on Amazon pay | No coupon required',
+      'title': 'Additional cashback upto ₹5 on Amazon pay | No coupon required',
       'subtitle':
-      'Pay via Amazon Pay and get Min ₹1 to Max ₹5 cashback,Valid on min. transaction of ₹3.',
+          'Pay via Amazon Pay and get Min ₹1 to Max ₹5 cashback,Valid on min. transaction of ₹3.',
       'expiry': 'Expires In 11 days'
     },
     {
@@ -51,14 +48,14 @@ class _CartState extends State<Cart> {
       'code': 'No Code Required',
       'title': '5% cashback on HSBC Credit card | No coupon code required',
       'subtitle':
-      '5% additional cashback up to ₹3 on payment made via HSBC Credit card on a minimum transaction of ₹10',
+          '5% additional cashback up to ₹3 on payment made via HSBC Credit card on a minimum transaction of ₹10',
       'expiry': 'Expires In 12 days'
     },
     {
       'image': 'assets/offer_icon/curefit.png',
       'code': 'CULTFIT5',
       'title':
-      'Use code : CULTFIT5 | Get 5% OFF on Live Training Sessions with Curefit',
+          'Use code : CULTFIT5 | Get 5% OFF on Live Training Sessions with Curefit',
       'subtitle': '5% OFF on Live Training Sessions with Curefit',
       'expiry': 'Expires In last 13 days'
     }
@@ -67,17 +64,51 @@ class _CartState extends State<Cart> {
   @override
   void initState() {
     super.initState();
+    print(address);
+    // getCartItemsList();
+    cartList = widget.cartList;
     calculateCartValue();
     calculateTotalOldPrice();
     getDeliveryCharge();
+    setState(() {
+      isLoading = false;
+    });
   }
 
+  getCartItemsList() async {
+    final data = await ApiProvider.getcartItems();
+    print(data);
+    setState(() {
+      cartList = data["data"][0]["cartItems"];
+    });
+    print("cart list length=======" + cartList.length.toString());
+  }
+
+  // calculateCartValue() {
+  //   if (cartItemList.length > 0) {
+  //     cartValue = 0;
+  //     for (int i = 0; i < cartItemList.length; i++) {
+  //       int price = int.parse(cartItemList[i]['price'].toString());
+  //       int qty = int.parse(cartItemList[i]['selectedQty'].toString());
+  //       int total = price * qty;
+  //       cartValue = cartValue + total;
+  //     }
+  //     setState(() {
+  //       cartValue = cartValue;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       cartValue = 0;
+  //     });
+  //   }
+  // }
+
   calculateCartValue() {
-    if (cartItemList.length > 0) {
+    if (cartList.length > 0) {
       cartValue = 0;
-      for (int i = 0; i < cartItemList.length; i++) {
-        int price = int.parse(cartItemList[i]['price'].toString());
-        int qty = int.parse(cartItemList[i]['selectedQty'].toString()) ;
+      for (int i = 0; i < cartList.length; i++) {
+        int price = int.parse(cartList[i]['price'].toString());
+        int qty = int.parse(cartList[i]['quantity'].toString());
         int total = price * qty;
         cartValue = cartValue + total;
       }
@@ -92,11 +123,11 @@ class _CartState extends State<Cart> {
   }
 
   calculateTotalOldPrice() {
-    if (cartItemList.length > 0) {
+    if (cartList.length > 0) {
       totalOldPrice = 0;
-      for (int i = 0; i < cartItemList.length; i++) {
-        int price = int.parse(cartItemList[i]['oldPrice'].toString());
-        int qty = int.parse(cartItemList[i]['selectedQty'].toString());
+      for (int i = 0; i < cartList.length; i++) {
+        int price = int.parse(cartList[i]['product']['price'].toString());
+        int qty = int.parse(cartList[i]['quantity'].toString());
         int total = price * qty;
         totalOldPrice = totalOldPrice + total;
       }
@@ -122,6 +153,7 @@ class _CartState extends State<Cart> {
     }
   }
 
+  /// TODO implement remove items from cart
   deleteCartItemDialogue(index) {
     showDialog(
       context: context,
@@ -131,7 +163,7 @@ class _CartState extends State<Cart> {
         return Dialog(
           elevation: 0.0,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
           child: Container(
             height: 130.0,
             padding: const EdgeInsets.all(20.0),
@@ -171,9 +203,14 @@ class _CartState extends State<Cart> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {
+                      onTap: () async {
+                        ApiProvider api = ApiProvider();
+                        EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                        await api
+                            .removeFromCart(cartList[index]['product']['_id']);
+                        EasyLoading.dismiss();
                         setState(() {
-                          cartItemList.removeAt(index);
+                          cartList.removeAt(index);
                         });
                         calculateCartValue();
                         calculateTotalOldPrice();
@@ -204,270 +241,270 @@ class _CartState extends State<Cart> {
     );
   }
 
-  selectQtyDialogue(index) {
-    double width = MediaQuery.of(context).size.width;
-    final item = cartItemList[index];
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return Dialog(
-          elevation: 0.0,
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          child: Wrap(
-            children: [
-              Container(
-                padding: EdgeInsets.only(
-                    right: fixPadding * 1.5,
-                    left: fixPadding * 1.5,
-                    top: fixPadding,
-                    bottom: fixPadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Select Quantity', style: primaryColorBigHeadingStyle),
-                    widthSpace,
-                    IconButton(
-                      icon: Icon(Icons.close, color: primaryColor),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: width,
-                height: 0.6,
-                color: primaryColor,
-              ),
-
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    cartItemList.removeAt(index);
-                  });
-                  calculateCartValue();
-                  calculateTotalOldPrice();
-                  getDeliveryCharge();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: width,
-                  padding: EdgeInsets.all(fixPadding * 1.5),
-                  color: Colors.transparent,
-                  child: Text('Remove item', style: primaryColorHeadingStyle),
-                ),
-              ),
-              // 1
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    item['selectedQty'] = 1;
-                  });
-                  calculateCartValue();
-                  calculateTotalOldPrice();
-                  getDeliveryCharge();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: width,
-                  padding: EdgeInsets.all(fixPadding * 1.5),
-                  color: (item['selectedQty'] == 1)
-                      ? lightGreyColor
-                      : Colors.transparent,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('1', style: primaryColorHeadingStyle),
-                      (item['selectedQty'] == 1)
-                          ? Container(
-                        width: 26.0,
-                        height: 26.0,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(13.0),
-                            color: redColor),
-                        child: Icon(Icons.check,
-                            size: 18.0, color: whiteColor),
-                      )
-                          : Container(),
-                    ],
-                  ),
-                ),
-              ),
-
-              // 2
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    item['selectedQty'] = 2;
-                  });
-                  calculateCartValue();
-                  calculateTotalOldPrice();
-                  getDeliveryCharge();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: width,
-                  padding: EdgeInsets.all(fixPadding * 1.5),
-                  color: (item['selectedQty'] == 2)
-                      ? lightGreyColor
-                      : Colors.transparent,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('2', style: primaryColorHeadingStyle),
-                      (item['selectedQty'] == 2)
-                          ? Container(
-                        width: 26.0,
-                        height: 26.0,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(13.0),
-                            color: redColor),
-                        child: Icon(Icons.check,
-                            size: 18.0, color: whiteColor),
-                      )
-                          : Container(),
-                    ],
-                  ),
-                ),
-              ),
-
-              // 3
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    item['selectedQty'] = 3;
-                  });
-                  calculateCartValue();
-                  calculateTotalOldPrice();
-                  getDeliveryCharge();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: width,
-                  padding: EdgeInsets.all(fixPadding * 1.5),
-                  color: (item['selectedQty'] == 3)
-                      ? lightGreyColor
-                      : Colors.transparent,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('3', style: primaryColorHeadingStyle),
-                      (item['selectedQty'] == 3)
-                          ? Container(
-                        width: 26.0,
-                        height: 26.0,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(13.0),
-                            color: redColor),
-                        child: Icon(Icons.check,
-                            size: 18.0, color: whiteColor),
-                      )
-                          : Container(),
-                    ],
-                  ),
-                ),
-              ),
-
-              //4
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    item['selectedQty'] = 4;
-                  });
-                  calculateCartValue();
-                  calculateTotalOldPrice();
-                  getDeliveryCharge();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: width,
-                  padding: EdgeInsets.all(fixPadding * 1.5),
-                  color: (item['selectedQty'] == 4)
-                      ? lightGreyColor
-                      : Colors.transparent,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('4', style: primaryColorHeadingStyle),
-                      (item['selectedQty'] == 4)
-                          ? Container(
-                        width: 26.0,
-                        height: 26.0,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(13.0),
-                            color: redColor),
-                        child: Icon(Icons.check,
-                            size: 18.0, color: whiteColor),
-                      )
-                          : Container(),
-                    ],
-                  ),
-                ),
-              ),
-
-              // 5
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    item['selectedQty'] = 5;
-                  });
-                  calculateCartValue();
-                  calculateTotalOldPrice();
-                  getDeliveryCharge();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: width,
-                  padding: EdgeInsets.all(fixPadding * 1.5),
-                  color: (item['selectedQty'] == 5)
-                      ? lightGreyColor
-                      : Colors.transparent,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('5', style: primaryColorHeadingStyle),
-                          widthSpace,
-                          Text('Max Qty', style: lightPrimaryColorTextStyle),
-                        ],
-                      ),
-                      (item['selectedQty'] == 5)
-                          ? Container(
-                        width: 26.0,
-                        height: 26.0,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(13.0),
-                            color: redColor),
-                        child: Icon(Icons.check,
-                            size: 18.0, color: whiteColor),
-                      )
-                          : Container(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // selectQtyDialogue(index) {
+  //   double width = MediaQuery.of(context).size.width;
+  //   final item = cartItemList[index];
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       // return object of type Dialog
+  //       return Dialog(
+  //         elevation: 0.0,
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+  //         child: Wrap(
+  //           children: [
+  //             Container(
+  //               padding: EdgeInsets.only(
+  //                   right: fixPadding * 1.5,
+  //                   left: fixPadding * 1.5,
+  //                   top: fixPadding,
+  //                   bottom: fixPadding),
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Text('Select Quantity', style: primaryColorBigHeadingStyle),
+  //                   widthSpace,
+  //                   IconButton(
+  //                     icon: Icon(Icons.close, color: primaryColor),
+  //                     onPressed: () {
+  //                       Navigator.pop(context);
+  //                     },
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             Container(
+  //               width: width,
+  //               height: 0.6,
+  //               color: primaryColor,
+  //             ),
+  //
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   cartItemList.removeAt(index);
+  //                 });
+  //                 calculateCartValue();
+  //                 calculateTotalOldPrice();
+  //                 getDeliveryCharge();
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color: Colors.transparent,
+  //                 child: Text('Remove item', style: primaryColorHeadingStyle),
+  //               ),
+  //             ),
+  //             // 1
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   item['selectedQty'] = 1;
+  //                 });
+  //                 calculateCartValue();
+  //                 calculateTotalOldPrice();
+  //                 getDeliveryCharge();
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color: (item['selectedQty'] == 1)
+  //                     ? lightGreyColor
+  //                     : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('1', style: primaryColorHeadingStyle),
+  //                     (item['selectedQty'] == 1)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             // 2
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   item['selectedQty'] = 2;
+  //                 });
+  //                 calculateCartValue();
+  //                 calculateTotalOldPrice();
+  //                 getDeliveryCharge();
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color: (item['selectedQty'] == 2)
+  //                     ? lightGreyColor
+  //                     : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('2', style: primaryColorHeadingStyle),
+  //                     (item['selectedQty'] == 2)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             // 3
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   item['selectedQty'] = 3;
+  //                 });
+  //                 calculateCartValue();
+  //                 calculateTotalOldPrice();
+  //                 getDeliveryCharge();
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color: (item['selectedQty'] == 3)
+  //                     ? lightGreyColor
+  //                     : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('3', style: primaryColorHeadingStyle),
+  //                     (item['selectedQty'] == 3)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             //4
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   item['selectedQty'] = 4;
+  //                 });
+  //                 calculateCartValue();
+  //                 calculateTotalOldPrice();
+  //                 getDeliveryCharge();
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color: (item['selectedQty'] == 4)
+  //                     ? lightGreyColor
+  //                     : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Text('4', style: primaryColorHeadingStyle),
+  //                     (item['selectedQty'] == 4)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             // 5
+  //             InkWell(
+  //               onTap: () {
+  //                 setState(() {
+  //                   item['selectedQty'] = 5;
+  //                 });
+  //                 calculateCartValue();
+  //                 calculateTotalOldPrice();
+  //                 getDeliveryCharge();
+  //                 Navigator.pop(context);
+  //               },
+  //               child: Container(
+  //                 width: width,
+  //                 padding: EdgeInsets.all(fixPadding * 1.5),
+  //                 color: (item['selectedQty'] == 5)
+  //                     ? lightGreyColor
+  //                     : Colors.transparent,
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: [
+  //                     Row(
+  //                       crossAxisAlignment: CrossAxisAlignment.center,
+  //                       children: [
+  //                         Text('5', style: primaryColorHeadingStyle),
+  //                         widthSpace,
+  //                         Text('Max Qty', style: lightPrimaryColorTextStyle),
+  //                       ],
+  //                     ),
+  //                     (item['selectedQty'] == 5)
+  //                         ? Container(
+  //                             width: 26.0,
+  //                             height: 26.0,
+  //                             alignment: Alignment.center,
+  //                             decoration: BoxDecoration(
+  //                                 borderRadius: BorderRadius.circular(13.0),
+  //                                 color: redColor),
+  //                             child: Icon(Icons.check,
+  //                                 size: 18.0, color: whiteColor),
+  //                           )
+  //                         : Container(),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -477,8 +514,7 @@ class _CartState extends State<Cart> {
         backgroundColor: primaryColor,
         elevation: 0.0,
         titleSpacing: 0.0,
-        title: Text('${cartItemList.length} Item in Cart',
-            style: appBarTitleStyle),
+        title: Text('${cartList.length} Item in Cart', style: appBarTitleStyle),
         actions: [
           IconButton(
             icon: const Icon(
@@ -494,148 +530,174 @@ class _CartState extends State<Cart> {
           ),
         ],
       ),
-      bottomNavigationBar:(cartItemList.length > 0)
+      bottomNavigationBar: (cartList.length > 0)
           ? Material(
-        elevation: 5.0,
-        child: Container(
-          color: Colors.white,
-          width: width,
-          height: 170.0,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
+              elevation: 5.0,
+              child: Container(
+                color: Colors.white,
                 width: width,
-                height: 100.0,
-                color: Colors.grey[200],
-                padding: EdgeInsets.all(fixPadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                height: 170.0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 70.0,
-                      height: 70.0,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: whiteColor,
-                        borderRadius: BorderRadius.circular(35.0),
-                      ),
-                      child: Image.asset('assets/icons/icon_9.png',
-                          width: 50.0, fit: BoxFit.fitWidth),
-                    ),
-                    widthSpace,
-                    SizedBox(
-                      width:
-                      width - (fixPadding * 2.0 + 70.0 + 10.0 + 65.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                      width: width,
+                      height: 100.0,
+                      color: Colors.grey[200],
+                      padding: EdgeInsets.all(fixPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('Deliver to', style: subHeadingStyle),
-                              widthSpace,
-                              Text('Home (10001)',
-                                  style: subHeadingBoldStyle),
-                            ],
+                          Container(
+                            width: 70.0,
+                            height: 70.0,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: whiteColor,
+                              borderRadius: BorderRadius.circular(35.0),
+                            ),
+                            child: Image.asset('assets/icons/icon_9.png',
+                                width: 50.0, fit: BoxFit.fitWidth),
                           ),
-                          heightSpace,
-                          Text(
-                            '91, Opera Street, Newyork, 10001',
-                            overflow: TextOverflow.ellipsis,
-                            style: subHeadingBoldStyle,
+                          widthSpace,
+                          SizedBox(
+                            width:
+                                width - (fixPadding * 2.0 + 70.0 + 10.0 + 65.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text('Deliver to', style: subHeadingStyle),
+                                    widthSpace,
+                                    // Text(address,
+                                    //     style: subHeadingBoldStyle),
+                                  ],
+                                ),
+                                heightSpace,
+                                Text(
+                                  address,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: subHeadingBoldStyle,
+                                ),
+                                heightSpace,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text('Delivery by:',
+                                        style: subHeadingStyle),
+                                    widthSpace,
+                                    Text('25-Aug-2020',
+                                        style: subHeadingBoldStyle),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                          heightSpace,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text('Delivery by:',
-                                  style: subHeadingStyle),
-                              widthSpace,
-                              Text('25-Aug-2020',
-                                  style: subHeadingBoldStyle),
-                            ],
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rightToLeft,
+                                    child: ChooseLocation(),
+                                  )).then((value) async {
+                                Future<SharedPreferences> s =
+                                    SharedPreferences.getInstance();
+                                SharedPreferences sp = await s;
+                                print(value);
+                                if (value != null) {
+                                  address = value;
+                                } else {
+                                  address = address;
+                                }
+                                sp.setString("ADDRESS", "$value");
+                                setState(() {});
+                              });
+                            },
+                            child: SizedBox(
+                              width: 65.0,
+                              child: Text(
+                                'Change'.toUpperCase(),
+                                style: primaryColorHeadingStyle,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            PageTransition(
-                                type: PageTransitionType.rightToLeft,
-                                child: SelectAddress()));
-                      },
-                      child: SizedBox(
-                        width: 65.0,
-                        child: Text(
-                          'Change'.toUpperCase(),
-                          style: primaryColorHeadingStyle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                height: 70.0,
-                padding: EdgeInsets.all(fixPadding),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
                     Container(
-                      width: 100.0,
-                      alignment: Alignment.center,
-                      child: Text('₹$cartValue', style: priceStyle),
-                    ),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(5.0),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            PageTransition(
-                                type: PageTransitionType.rightToLeft,
-                                child: Payment()));
-                      },
-                      child: Container(
-                        width: width - (fixPadding * 2.0 + 100.0),
-                        height: 50.0,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.0),
-                          color: primaryColor,
-                        ),
-                        child: Text(
-                          'Proceed to Payment',
-                          style: appBarTitleStyle,
-                        ),
+                      height: 70.0,
+                      padding: EdgeInsets.all(fixPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            width: 100.0,
+                            alignment: Alignment.center,
+                            child: Text('₹$cartValue', style: priceStyle),
+                          ),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(5.0),
+                            onTap: () {
+                              List<dynamic> cartItems = [];
+                              for (int i = 0; i < cartList.length; i++) {
+                                var item = {
+                                  "productId": cartList[i]['product']['_id'],
+                                  "payablePrice":
+                                      '${(cartList[i]["quantity"] * cartList[i]["price"])}',
+                                  "purchasedQty": cartList[i]['quantity']
+                                };
+                                cartItems.add(item);
+                              }
+                              Navigator.push(
+                                  context,
+                                  PageTransition(
+                                      type: PageTransitionType.rightToLeft,
+                                      child: Payment(cartItems: cartItems)));
+                            },
+                            child: Container(
+                              width: width - (fixPadding * 2.0 + 100.0),
+                              height: 50.0,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: primaryColor,
+                              ),
+                              child: Text(
+                                'Proceed to Payment',
+                                style: appBarTitleStyle,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      )
+            )
           : Container(
-        height: 0.0,
-      ),
-      body: ListView(
-        children: [
-          (cartItemList.length > 0) ? cartWithItem() : emptyCart(),
-        ],
-      ),
+              height: 0.0,
+            ),
+      body: isLoading
+          ? CircularProgressIndicator()
+          : ListView(
+              children: [
+                (cartList.length > 0) ? cartWithItem() : emptyCart(),
+              ],
+            ),
     );
   }
 
+  ///TODO work on this
   cartWithItem() {
     double width = MediaQuery.of(context).size.width;
     return Column(
@@ -708,10 +770,9 @@ class _CartState extends State<Cart> {
         heightSpace,
         heightSpace,
         // Hand picked item for you Start
-        
+
         // HandpickedItemGrid(),
-        
-        
+
         // Hand picked item for you End
         heightSpace,
         heightSpace,
@@ -732,15 +793,16 @@ class _CartState extends State<Cart> {
     );
   }
 
+  /// TODO use future builder here
   getCartItemList() {
     double width = MediaQuery.of(context).size.width;
     return ColumnBuilder(
-      itemCount: cartItemList.length,
+      itemCount: cartList.length,
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
       itemBuilder: (context, index) {
-        final item = cartItemList[index];
+        final data = cartList[index];
         return Container(
           width: width,
           padding: EdgeInsets.all(fixPadding * 2.0),
@@ -755,7 +817,8 @@ class _CartState extends State<Cart> {
                 height: 50.0,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(item['image'].toString()),
+                    image: NetworkImage(imagebaseurl +
+                        data['product']['productPictures'][0]['filename']),
                     fit: BoxFit.fitHeight,
                   ),
                 ),
@@ -773,8 +836,8 @@ class _CartState extends State<Cart> {
                       children: [
                         Container(
                           width:
-                          width - (fixPadding * 4.0 + 50.0 + 10.0 + 25.0),
-                          child: Text(item['name'].toString(),
+                              width - (fixPadding * 4.0 + 50.0 + 10.0 + 25.0),
+                          child: Text(data['product']['title'].toString(),
                               style: primaryColorHeadingStyle),
                         ),
                         InkWell(
@@ -789,19 +852,22 @@ class _CartState extends State<Cart> {
                         ),
                       ],
                     ),
-                    Text('By ${item['companyName']}'.toUpperCase(),
+                    Text(
+                        'By ${data['product']['manufacturer_name']}'
+                            .toUpperCase(),
                         style: subHeadingStyle),
                     heightSpace,
-                    Text('${item['qty']}'.toUpperCase(),
+                    Text('${data['quantity']}'.toUpperCase(),
                         style: thickPrimaryColorHeadingStyle),
                     SizedBox(height: 5.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('₹${item['price']}', style: priceStyle),
+                        Text('₹${data['product']['discount_price']}',
+                            style: priceStyle),
                         widthSpace,
-                        Text('₹${item['oldPrice']}', style: oldStyle),
+                        Text('₹${data['product']['price']}', style: oldStyle),
                         widthSpace,
                         Container(
                           padding: EdgeInsets.only(
@@ -810,35 +876,29 @@ class _CartState extends State<Cart> {
                             color: redColor,
                             borderRadius: BorderRadius.circular(5.0),
                           ),
-                          child: Text('${item['offer']}'.toUpperCase(),
+                          child: Text(
+                              '${data['product']['discount_percentage']}'
+                                  .toUpperCase(),
                               style: thickWhiteTextStyle),
                         ),
                       ],
                     ),
                     heightSpace,
-                    InkWell(
-                      onTap: () {
-                        selectQtyDialogue(index);
-                      },
-                      child: Container(
-                        width: 80.0,
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.all(5.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.0),
-                          border: Border.all(width: 0.6, color: primaryColor),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text('Qty ${item['selectedQty']}',
-                                style: primaryColorHeadingStyle),
-                            SizedBox(width: 3.0),
-                            Icon(Icons.arrow_drop_down,
-                                size: 20.0, color: primaryColor)
-                          ],
-                        ),
+                    Container(
+                      width: 80.0,
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        border: Border.all(width: 0.6, color: primaryColor),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('Qty ${data['quantity']}',
+                              style: primaryColorHeadingStyle),
+                        ],
                       ),
                     ),
                   ],
@@ -1022,15 +1082,16 @@ class _CartState extends State<Cart> {
                 // height: height,
                 decoration: const BoxDecoration(
                   color: Colors.transparent,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(10.0)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(10.0)),
                 ),
                 child: Column(
                   children: <Widget>[
                     Container(
                       decoration: BoxDecoration(
                         color: whiteColor,
-                        borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(10.0)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(10.0)),
                       ),
                       padding: EdgeInsets.only(
                           right: fixPadding * 2.0,
@@ -1040,7 +1101,8 @@ class _CartState extends State<Cart> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Apply Coupon', style: primaryColorBigHeadingStyle),
+                          Text('Apply Coupon',
+                              style: primaryColorBigHeadingStyle),
                           IconButton(
                             icon: Icon(Icons.close, color: primaryColor),
                             onPressed: () {
@@ -1051,7 +1113,7 @@ class _CartState extends State<Cart> {
                       ),
                     ),
                     SizedBox(
-                      height: height/3,
+                      height: height / 3,
                       child: ListView(
                         shrinkWrap: true,
                         children: [
@@ -1065,7 +1127,8 @@ class _CartState extends State<Cart> {
                                 color: whiteColor,
                                 borderRadius: BorderRadius.circular(5.0),
                                 border: Border.all(
-                                    width: 0.8, color: greyColor.withOpacity(0.6)),
+                                    width: 0.8,
+                                    color: greyColor.withOpacity(0.6)),
                               ),
                               child: TextField(
                                 style: searchTextStyle,
@@ -1107,14 +1170,15 @@ class _CartState extends State<Cart> {
                                   children: [
                                     Row(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                              MainAxisAlignment.start,
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                              CrossAxisAlignment.center,
                                           children: [
                                             DottedBorder(
                                               borderType: BorderType.RRect,
@@ -1122,13 +1186,15 @@ class _CartState extends State<Cart> {
                                               strokeWidth: 0.8,
                                               color: Colors.orange,
                                               child: ClipRRect(
-                                                borderRadius: const BorderRadius.all(
-                                                    Radius.circular(12)),
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(12)),
                                                 child: Container(
                                                   width: 100.0,
                                                   height: 50.0,
                                                   alignment: Alignment.center,
-                                                  child: Image.asset(item['image'].toString(),
+                                                  child: Image.asset(
+                                                      item['image'].toString(),
                                                       height: 50.0,
                                                       fit: BoxFit.fitHeight),
                                                 ),
@@ -1136,27 +1202,30 @@ class _CartState extends State<Cart> {
                                             ),
                                             (item['code'] != 'No Code Required')
                                                 ? Row(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                              children: [
-                                                widthSpace,
-                                                Container(
-                                                  width: 0.8,
-                                                  height: 35.0,
-                                                  color: Colors.orange,
-                                                ),
-                                                widthSpace,
-                                                Text(item['code'].toString(),
-                                                    style:
-                                                    thickOrangeColorHeadingStyle),
-                                              ],
-                                            )
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      widthSpace,
+                                                      Container(
+                                                        width: 0.8,
+                                                        height: 35.0,
+                                                        color: Colors.orange,
+                                                      ),
+                                                      widthSpace,
+                                                      Text(
+                                                          item['code']
+                                                              .toString(),
+                                                          style:
+                                                              thickOrangeColorHeadingStyle),
+                                                    ],
+                                                  )
                                                 : Container(),
                                           ],
                                         ),
-                                   Container(
+                                        Container(
                                           width: 100.0,
                                           alignment: Alignment.centerRight,
                                           child: InkWell(
@@ -1168,10 +1237,12 @@ class _CartState extends State<Cart> {
                                               }
                                             },
                                             child: Text(
-                                                (item['code'] == 'No Code Required')
+                                                (item['code'] ==
+                                                        'No Code Required')
                                                     ? item['code'].toString()
                                                     : 'Apply',
-                                                style: primaryColorHeadingStyle),
+                                                style:
+                                                    primaryColorHeadingStyle),
                                           ),
                                         ),
                                       ],
@@ -1180,7 +1251,8 @@ class _CartState extends State<Cart> {
                                     Text(item['title'].toString(),
                                         style: primaryColorHeadingStyle),
                                     heightSpace,
-                                    Text(item['subtitle'].toString(), style: subHeadingStyle),
+                                    Text(item['subtitle'].toString(),
+                                        style: subHeadingStyle),
                                     heightSpace,
                                     Text(item['expiry'].toString(),
                                         style: primaryColorTextButtonTextStyle),
@@ -1188,14 +1260,14 @@ class _CartState extends State<Cart> {
                                     heightSpace,
                                     (index != (couponList.length - 1))
                                         ? Container(
-                                      width: width - fixPadding * 4.0,
-                                      height: 0.8,
-                                      decoration: BoxDecoration(
-                                        color: primaryColor,
-                                        borderRadius:
-                                        BorderRadius.circular(10.0),
-                                      ),
-                                    )
+                                            width: width - fixPadding * 4.0,
+                                            height: 0.8,
+                                            decoration: BoxDecoration(
+                                              color: primaryColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                          )
                                         : Container(),
                                   ],
                                 ),
@@ -1234,7 +1306,7 @@ class _CartState extends State<Cart> {
               maxLines: 3,
               decoration: InputDecoration(
                 hintText:
-                'Enter any additional information regarding your order',
+                    'Enter any additional information regarding your order',
                 hintStyle: noteHintTextStyle,
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: greyColor, width: 0.5),
@@ -1305,20 +1377,20 @@ class _CartState extends State<Cart> {
                     ),
                     (action != '')
                         ? InkWell(
-                      onTap: () {
-                        if (action == 'Terms and Conditions') {
-                          Navigator.push(
-                              context,
-                              PageTransition(
-                                  type: PageTransitionType.rightToLeft,
-                                  child: TermsAndConditions()));
-                        }
-                      },
-                      child: Text(
-                        action,
-                        style: primaryColorTextButtonTextStyle,
-                      ),
-                    )
+                            onTap: () {
+                              if (action == 'Terms and Conditions') {
+                                Navigator.push(
+                                    context,
+                                    PageTransition(
+                                        type: PageTransitionType.rightToLeft,
+                                        child: TermsAndConditions()));
+                              }
+                            },
+                            child: Text(
+                              action,
+                              style: primaryColorTextButtonTextStyle,
+                            ),
+                          )
                         : Container(),
                   ],
                 ),

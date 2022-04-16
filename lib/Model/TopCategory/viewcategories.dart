@@ -15,31 +15,35 @@ String viewTopCategorymToJson(List<ViewTopCategorym> data) => json.encode(List<d
 class ViewTopCategorym {
   ViewTopCategorym({
     this.id,
-    this.categoryId,
-    this.categoryType,
-    this.discountPercentage,
+    // this.categoryId,
+    this.name,
+    //this.topCategories,
+    // this.discountPercentage,
     this.image,
   });
 
   String ?id;
-  CategoryId ?categoryId;
-  String ?categoryType;
-  String ?discountPercentage;
+  //CategoryId ?categoryId;
+  String? name;
+  //String ?topCategories;
+  // String ?discountPercentage;
   String ?image;
 
   factory ViewTopCategorym.fromJson(Map<String, dynamic> json) => ViewTopCategorym(
     id: json["_id"],
-    categoryId: CategoryId.fromJson(json["categoryId"]),
-    categoryType: json["category_type"],
-    discountPercentage: json["discountPercentage"],
+    //categoryId: CategoryId.fromJson(json["categoryId"]),
+    // categoryType: json["category_type"],
+    name: json["name"],
+    //discountPercentage: json["discountPercentage"],
     image: json["image"],
   );
 
   Map<String, dynamic> toJson() => {
     "_id": id,
-    "categoryId": categoryId!.toJson(),
-    "category_type": categoryType,
-    "discountPercentage": discountPercentage,
+    //"categoryId": categoryId!.toJson(),
+    // "category_type": categoryType,
+    "name": name,
+    //"discountPercentage": discountPercentage,
     "image": image,
   };
 }

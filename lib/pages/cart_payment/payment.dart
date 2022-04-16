@@ -1,11 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:newhealthapp/api/api_provider.dart';
 
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/home/home.dart';
 
 class Payment extends StatefulWidget {
+  final List<dynamic> cartItems;
+
+  const Payment({Key? key, required this.cartItems}) : super(key: key);
   @override
   _PaymentState createState() => _PaymentState();
 }
@@ -17,7 +22,7 @@ class _PaymentState extends State<Payment> {
       skrill = false,
       cashOn = false;
   Color _colorContainer = Colors.blue;
-  Future delay() async{
+  Future delay() async {
     Future.delayed(Duration(seconds: 1), () {
       // 5 seconds over, navigate to Page2.
       Navigator.push(context, MaterialPageRoute(builder: (_) => Home()));
@@ -33,60 +38,58 @@ class _PaymentState extends State<Payment> {
     //   context: context,
     //   barrierDismissible: false,
     //   builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          content: Container(
-            height: 170.0,
-            padding: const EdgeInsets.all(20.0),
-            decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color:Colors.white),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-
-
-                Container(
-                  height: 70.0,
-                  width: 70.0,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color:_colorContainer,
-                    borderRadius: BorderRadius.circular(35.0),
-                    border: Border.all(color: primaryColor, width: 1.0),
+    // return object of type Dialog
+    return AlertDialog(
+      content: Container(
+        height: 170.0,
+        padding: const EdgeInsets.all(20.0),
+        decoration:
+            const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+                height: 70.0,
+                width: 70.0,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _colorContainer,
+                  borderRadius: BorderRadius.circular(35.0),
+                  border: Border.all(color: primaryColor, width: 1.0),
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.check,
+                    size: 40.0,
+                    color: Colors.white,
                   ),
-                  child: IconButton(icon: const Icon(Icons.check,  size: 40.0,
-                    color: Colors.white,), onPressed: () {
+                  onPressed: () {
                     delay();
                     Navigator.pop(context);
                     setState(() {
-                      _colorContainer = _colorContainer == Colors.red ?
-                      Colors.blue :
-                      Colors.red;
+                      _colorContainer = _colorContainer == Colors.red
+                          ? Colors.blue
+                          : Colors.red;
                     });
-                    color: Colors.red;
-                  },)
-                ),
-
-                const SizedBox(
-                  height: 20.0,
-                ),
-                Text(
-                  "Your order has been placed!",
-                  style: orderPlacedTextStyle,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                    color:
+                    Colors.red;
+                  },
+                )),
+            const SizedBox(
+              height: 20.0,
             ),
-          ),
-        );
+            Text(
+              "Your order has been placed!",
+              style: orderPlacedTextStyle,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
     //   },
     // );
-
-
-
-
   }
 
   @override
@@ -112,11 +115,25 @@ class _PaymentState extends State<Payment> {
             children: <Widget>[
               InkWell(
                 borderRadius: BorderRadius.circular(5.0),
-                onTap: () {
+                onTap: () async {
+                  //TODO implement order
+                  ApiProvider api = ApiProvider();
+                  int totalAmount = 0;
+                  for (int i = 0; i < widget.cartItems.length; i++) {
+                    totalAmount +=
+                        int.parse(widget.cartItems[i]["payablePrice"]);
+                  }
+                  EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                  await api.addOrder('cod', totalAmount.toString(), 'pending',
+                      'ordered', widget.cartItems);
+                  EasyLoading.dismiss();
                   showDialog(
                     context: context,
-                    builder: (BuildContext context) => successOrderDialog(context),
+                    builder: (BuildContext context) =>
+                        successOrderDialog(context),
                   );
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => Home()));
 
                   // successOrderDialog();
                 },
@@ -209,23 +226,23 @@ class _PaymentState extends State<Payment> {
             width: 1.0,
             color: (title == 'Pay on Delivery')
                 ? (cashOn)
-                ? primaryColor
-                : Colors.grey.shade300
+                    ? primaryColor
+                    : Colors.grey.shade300
                 : (title == 'Amazon Pay')
-                ? (amazon)
-                ? primaryColor
-                : Colors.grey.shade300
-                : (title == 'Card')
-                ? (card)
-                ? primaryColor
-                : Colors.grey.shade300
-                : (title == 'PayPal')
-                ? (paypal)
-                ? primaryColor
-                : Colors.grey.shade300
-                : (skrill)
-                ? primaryColor
-                : Colors.grey.shade300,
+                    ? (amazon)
+                        ? primaryColor
+                        : Colors.grey.shade300
+                    : (title == 'Card')
+                        ? (card)
+                            ? primaryColor
+                            : Colors.grey.shade300
+                        : (title == 'PayPal')
+                            ? (paypal)
+                                ? primaryColor
+                                : Colors.grey.shade300
+                            : (skrill)
+                                ? primaryColor
+                                : Colors.grey.shade300,
           ),
           color: whiteColor,
         ),
@@ -240,7 +257,7 @@ class _PaymentState extends State<Payment> {
                 SizedBox(
                   width: 70.0,
                   child:
-                  Image.asset(imgPath, width: 70.0, fit: BoxFit.fitWidth),
+                      Image.asset(imgPath, width: 70.0, fit: BoxFit.fitWidth),
                 ),
                 widthSpace,
                 Text(title, style: primaryColorHeadingStyle),
@@ -256,23 +273,23 @@ class _PaymentState extends State<Payment> {
                   width: 1.5,
                   color: (title == 'Pay on Delivery')
                       ? (cashOn)
-                      ? primaryColor
-                      : Colors.grey.shade300
+                          ? primaryColor
+                          : Colors.grey.shade300
                       : (title == 'Amazon Pay')
-                      ? (amazon)
-                      ? primaryColor
-                      : Colors.grey.shade300
-                      : (title == 'Card')
-                      ? (card)
-                      ? primaryColor
-                      : Colors.grey.shade300
-                      : (title == 'PayPal')
-                      ? (paypal)
-                      ? primaryColor
-                      : Colors.grey.shade300
-                      : (skrill)
-                      ? primaryColor
-                      : Colors.grey.shade300,
+                          ? (amazon)
+                              ? primaryColor
+                              : Colors.grey.shade300
+                          : (title == 'Card')
+                              ? (card)
+                                  ? primaryColor
+                                  : Colors.grey.shade300
+                              : (title == 'PayPal')
+                                  ? (paypal)
+                                      ? primaryColor
+                                      : Colors.grey.shade300
+                                  : (skrill)
+                                      ? primaryColor
+                                      : Colors.grey.shade300,
                 ),
               ),
               child: Container(
@@ -283,23 +300,23 @@ class _PaymentState extends State<Payment> {
                   borderRadius: BorderRadius.circular(5.0),
                   color: (title == 'Pay on Delivery')
                       ? (cashOn)
-                      ? primaryColor
-                      : Colors.transparent
+                          ? primaryColor
+                          : Colors.transparent
                       : (title == 'Amazon Pay')
-                      ? (amazon)
-                      ? primaryColor
-                      : Colors.transparent
-                      : (title == 'Card')
-                      ? (card)
-                      ? primaryColor
-                      : Colors.transparent
-                      : (title == 'PayPal')
-                      ? (paypal)
-                      ? primaryColor
-                      : Colors.transparent
-                      : (skrill)
-                      ? primaryColor
-                      : Colors.transparent,
+                          ? (amazon)
+                              ? primaryColor
+                              : Colors.transparent
+                          : (title == 'Card')
+                              ? (card)
+                                  ? primaryColor
+                                  : Colors.transparent
+                              : (title == 'PayPal')
+                                  ? (paypal)
+                                      ? primaryColor
+                                      : Colors.transparent
+                                  : (skrill)
+                                      ? primaryColor
+                                      : Colors.transparent,
                 ),
               ),
             ),
