@@ -34,7 +34,8 @@ class _PreviousOrderState extends State<PreviousOrder> {
                   PageTransition(
                       type: PageTransitionType.rightToLeft,
                       child: PreviouslyBoughtItem(
-                        previouslyBoughtItem: body['data']['items'],
+                        previouslyBoughtItem: body['data']
+                            [body['data'].length - 1]['items'],
                       )));
             },
             child: Container(
@@ -84,7 +85,8 @@ class _PreviousOrderState extends State<PreviousOrder> {
                   PageTransition(
                       type: PageTransitionType.rightToLeft,
                       child: PreviouslyBoughtItem(
-                        previouslyBoughtItem: body['data']['items'],
+                        previouslyBoughtItem: body['data']
+                            [body['data'].length - 1]['items'],
                       )));
             },
             child: Container(

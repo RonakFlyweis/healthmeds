@@ -18,6 +18,8 @@ import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../search/search.dart';
+
 class HealthCare extends StatefulWidget {
   @override
   _HealthCareState createState() => _HealthCareState();
@@ -118,7 +120,7 @@ class _HealthCareState extends State<HealthCare> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: MediaQuery.of(context).size.width*0.3,
+                        width: MediaQuery.of(context).size.width * 0.3,
                         child: Text(
                           //address ?? addressadd ?? 'No Address',
                           address,
@@ -126,8 +128,7 @@ class _HealthCareState extends State<HealthCare> {
                               fontSize: 15.0,
                               color: whiteColor,
                               fontWeight: FontWeight.w500,
-                              overflow: TextOverflow.ellipsis
-                          ),
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ),
                       Icon(Icons.keyboard_arrow_down,
@@ -173,10 +174,10 @@ class _HealthCareState extends State<HealthCare> {
             padding: EdgeInsets.all(fixPadding),
             child: InkWell(
               onTap: () {
-                // Navigator.push(
-                //     context,
-                //     PageTransition(
-                //         type: PageTransitionType.rightToLeft, child: Search()));
+                Navigator.push(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.rightToLeft, child: Search()));
               },
               child: Container(
                 width: width - fixPadding * 2.0,

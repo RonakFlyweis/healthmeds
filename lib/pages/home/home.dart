@@ -136,7 +136,7 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'HealthMeds',
+              'V Meds',
               style: appBarTitleStyle,
             ),
             Row(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:newhealthapp/api/api_provider.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/home/home.dart';
@@ -8,18 +9,23 @@ import 'package:page_transition/page_transition.dart';
 import 'active_order.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+dynamic name = "Name";
+dynamic mobile = "1234567890";
+
 class Profile extends StatefulWidget {
   @override
   _ProfileState createState() => _ProfileState();
 }
 
 class _ProfileState extends State<Profile> {
+  final nameController = TextEditingController();
   final mobileNumberController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    mobileNumberController.text = '123456789';
+    nameController.text = name;
+    mobileNumberController.text = mobile;
   }
 
   deletePrescriptionImageDialogue() {
@@ -31,7 +37,7 @@ class _ProfileState extends State<Profile> {
         return Dialog(
           elevation: 0.0,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
           child: Container(
             height: 130.0,
             padding: const EdgeInsets.all(20.0),
@@ -111,8 +117,9 @@ class _ProfileState extends State<Profile> {
         actions: <Widget>[
           TextButton(
             onPressed: () {
+              name = nameController.text.toString();
+              mobile = mobileNumberController.text.toString();
               Fluttertoast.showToast(msg: "Saved Successful");
-
               // Navigator.push(context,
               //     MaterialPageRoute(builder: (context) =>  Home())
               // );
@@ -137,6 +144,7 @@ class _ProfileState extends State<Profile> {
                 SizedBox(
                   width: width - (fixPadding * 4.0),
                   child: TextField(
+                    controller: nameController,
                     autocorrect: true,
                     style: searchTextStyle,
                     decoration: InputDecoration(
@@ -144,7 +152,7 @@ class _ProfileState extends State<Profile> {
                       labelStyle: subHeadingStyle,
                       border: OutlineInputBorder(
                         borderSide:
-                        BorderSide(color: Colors.grey.shade300, width: 0.6),
+                            BorderSide(color: Colors.grey.shade300, width: 0.6),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: primaryColor, width: 0.9),
@@ -165,7 +173,7 @@ class _ProfileState extends State<Profile> {
                       labelStyle: subHeadingStyle,
                       border: OutlineInputBorder(
                         borderSide:
-                        BorderSide(color: Colors.grey.shade300, width: 0.6),
+                            BorderSide(color: Colors.grey.shade300, width: 0.6),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: primaryColor, width: 0.9),
@@ -177,13 +185,19 @@ class _ProfileState extends State<Profile> {
             ),
           ),
           InkWell(
-            onTap: () {
+            onTap: () async {
+              EasyLoading.show();
+              final body = await ApiProvider.getReqBodyDataAuthorized(
+                  endpoint:
+                      'https://helthmade-1234.herokuapp.com/getPreviouslyBoughtItem');
+              EasyLoading.dismiss();
               Navigator.push(
                   context,
                   PageTransition(
                       type: PageTransitionType.rightToLeft,
-                      child: ActiveOrder())
-              );
+                      child: ActiveOrder(
+                        activeOrder: body['data'][0],
+                      )));
             },
             child: Container(
               width: width,
@@ -212,9 +226,9 @@ class _ProfileState extends State<Profile> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
                 border: Border.all(width: 1.3, color: primaryColor),
-                color: whiteColor,
+                color: primaryColor,
               ),
-              child: Text('Logout', style: primaryColorHeadingStyle),
+              child: Text('Logout', style: whiteColorHeadingStyle),
             ),
           ),
         ],

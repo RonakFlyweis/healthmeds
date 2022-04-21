@@ -24,6 +24,8 @@ class PreviouslyBoughtItem extends StatefulWidget {
 class _PreviouslyBoughtItemState extends State<PreviouslyBoughtItem> {
   int cartItem = 1;
   var addressadd;
+  int selectedQty = 0;
+  bool addedToCart = false;
 
   @override
   void initState() {
@@ -53,6 +55,272 @@ class _PreviouslyBoughtItemState extends State<PreviouslyBoughtItem> {
     addressadd = sp.getString("ADDRESS");
     print("======Address ADDED=== $addressadd");
     setState(() {});
+  }
+
+  selectQtyDialogue() {
+    double width = MediaQuery.of(context).size.width;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return Dialog(
+          elevation: 0.0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          child: Wrap(
+            children: [
+              Container(
+                padding: EdgeInsets.only(
+                    right: fixPadding * 1.5,
+                    left: fixPadding * 1.5,
+                    top: fixPadding,
+                    bottom: fixPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Select Quantity', style: primaryColorBigHeadingStyle),
+                    widthSpace,
+                    IconButton(
+                      icon: Icon(Icons.close, color: primaryColor),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: width,
+                height: 0.6,
+                color: primaryColor,
+              ),
+
+              (addedToCart)
+                  ? InkWell(
+                      onTap: () {
+                        setState(() {
+                          addedToCart = false;
+                          selectedQty = 0;
+                          // cartItem = cartItem - 1;
+                          Navigator.pop(context);
+                        });
+                      },
+                      child: Container(
+                        width: width,
+                        padding: EdgeInsets.all(fixPadding * 1.5),
+                        color: Colors.transparent,
+                        child: Text('Remove item',
+                            style: primaryColorHeadingStyle),
+                      ),
+                    )
+                  : Container(),
+              // 1
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedQty = 1;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: width,
+                  padding: EdgeInsets.all(fixPadding * 1.5),
+                  color:
+                      (selectedQty == 1) ? lightGreyColor : Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('1', style: primaryColorHeadingStyle),
+                      (selectedQty == 1)
+                          ? Container(
+                              width: 26.0,
+                              height: 26.0,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(13.0),
+                                  color: redColor),
+                              child: Icon(Icons.check,
+                                  size: 18.0, color: whiteColor),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ),
+              ),
+
+              // 2
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedQty = 2;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: width,
+                  padding: EdgeInsets.all(fixPadding * 1.5),
+                  color:
+                      (selectedQty == 2) ? lightGreyColor : Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('2', style: primaryColorHeadingStyle),
+                      (selectedQty == 2)
+                          ? Container(
+                              width: 26.0,
+                              height: 26.0,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(13.0),
+                                  color: redColor),
+                              child: Icon(Icons.check,
+                                  size: 18.0, color: whiteColor),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ),
+              ),
+
+              // 3
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedQty = 3;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: width,
+                  padding: EdgeInsets.all(fixPadding * 1.5),
+                  color:
+                      (selectedQty == 3) ? lightGreyColor : Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('3', style: primaryColorHeadingStyle),
+                      (selectedQty == 3)
+                          ? Container(
+                              width: 26.0,
+                              height: 26.0,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(13.0),
+                                  color: redColor),
+                              child: Icon(Icons.check,
+                                  size: 18.0, color: whiteColor),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ),
+              ),
+
+              //4
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedQty = 4;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: width,
+                  padding: EdgeInsets.all(fixPadding * 1.5),
+                  color:
+                      (selectedQty == 4) ? lightGreyColor : Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('4', style: primaryColorHeadingStyle),
+                      (selectedQty == 4)
+                          ? Container(
+                              width: 26.0,
+                              height: 26.0,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(13.0),
+                                  color: redColor),
+                              child: Icon(Icons.check,
+                                  size: 18.0, color: whiteColor),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ),
+              ),
+
+              // 5
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedQty = 5;
+                    if (!addedToCart) {
+                      cartItem = cartItem + 1;
+                    }
+                    addedToCart = true;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  width: width,
+                  padding: EdgeInsets.all(fixPadding * 1.5),
+                  color:
+                      (selectedQty == 5) ? lightGreyColor : Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('5', style: primaryColorHeadingStyle),
+                          widthSpace,
+                          Text('Max Qty', style: lightPrimaryColorTextStyle),
+                        ],
+                      ),
+                      (selectedQty == 5)
+                          ? Container(
+                              width: 26.0,
+                              height: 26.0,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(13.0),
+                                  color: redColor),
+                              child: Icon(Icons.check,
+                                  size: 18.0, color: whiteColor),
+                            )
+                          : Container(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -123,22 +391,35 @@ class _PreviouslyBoughtItemState extends State<PreviouslyBoughtItem> {
               InkWell(
                 borderRadius: BorderRadius.circular(5.0),
                 onTap: () async {
-                  EasyLoading.show(maskType: EasyLoadingMaskType.black);
-                  final data = await ApiProvider.getcartItems();
-                  final cartList;
-                  if (data["data"].length == 0) {
-                    cartList = [];
+                  if (selectedQty != 0) {
+                    ApiProvider api = ApiProvider();
+                    EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                    dynamic listOfItems = widget.previouslyBoughtItem;
+                    for (int i = 0; i < listOfItems.length; i++) {
+                      dynamic product = listOfItems[i]["productId"];
+                      await api.addtocart(product['_id'],
+                          selectedQty.toString(), product["discount_price"]);
+                    }
+                    EasyLoading.dismiss();
+                    EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                    final data = await ApiProvider.getcartItems();
+                    final cartList;
+                    if (data["data"].length == 0) {
+                      cartList = [];
+                    } else {
+                      cartList = data["data"][0]["cartItems"];
+                    }
+                    EasyLoading.dismiss();
+                    Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.rightToLeft,
+                            child: Cart(
+                              cartList: cartList,
+                            )));
                   } else {
-                    cartList = data["data"][0]["cartItems"];
+                    EasyLoading.showToast('Please select some quantity');
                   }
-                  EasyLoading.dismiss();
-                  Navigator.push(
-                      context,
-                      PageTransition(
-                          type: PageTransitionType.rightToLeft,
-                          child: Cart(
-                            cartList: cartList,
-                          )));
                 },
                 child: Container(
                   width: width - fixPadding * 4.0,
@@ -256,10 +537,24 @@ class _PreviouslyBoughtItemState extends State<PreviouslyBoughtItem> {
                             .toUpperCase(),
                         style: subHeadingStyle),
                     heightSpace,
-                    Text(
-                        'Quantity : ${boughtItem['purchasedQty']}'
-                            .toUpperCase(),
-                        style: thickPrimaryColorHeadingStyle),
+                    // Text(
+                    //     'Quantity : ${boughtItem['purchasedQty']}'
+                    //         .toUpperCase(),
+                    //     style: thickPrimaryColorHeadingStyle),
+                    InkWell(
+                      onTap: () {
+                        selectQtyDialogue();
+                      },
+                      child: Text(
+                          (addedToCart)
+                              ? 'Quantity : ' + selectedQty.toString()
+                              : 'Select Qty',
+                          style: (addedToCart)
+                              ? primaryColorBigHeadingStyle.copyWith(
+                                  fontSize: 16.0, color: primaryColor)
+                              : whiteBigHeadingStyle.copyWith(
+                                  fontSize: 16.0, color: primaryColor)),
+                    ),
                     const SizedBox(height: 5.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,

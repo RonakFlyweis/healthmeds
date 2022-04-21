@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:newhealthapp/api/api_provider.dart';
@@ -11,19 +10,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'otp_screen.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:twilio_phone_verify/twilio_phone_verify.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
 
 class _LoginState extends State<Login> {
-
-  late TwilioPhoneVerify  _twilioPhoneVerify;
+  late TwilioPhoneVerify _twilioPhoneVerify;
 
   final _phone = TextEditingController();
   String phoneIsoCode = '+91';
 
-  Future  getphonenumber() async {
+  Future getphonenumber() async {
     Future<SharedPreferences> s = SharedPreferences.getInstance();
     SharedPreferences sp = await s;
     var addressadd = sp.getString("PHONENUMBER");
@@ -34,23 +33,22 @@ class _LoginState extends State<Login> {
   void initState() {
     _twilioPhoneVerify = new TwilioPhoneVerify(
         accountSid: '*************************', // replace with Account SID
-        authToken: 'xxxxxxxxxxxxxxxxxx',  // replace with Auth Token
-        serviceSid: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' // replace with Service SID
-    );
+        authToken: 'xxxxxxxxxxxxxxxxxx', // replace with Auth Token
+        serviceSid:
+            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' // replace with Service SID
+        );
     // TODO: implement initState
     super.initState();
   }
 
-sendotp(String phone) async {
-  var twilioResponse =
-      await _twilioPhoneVerify.sendSmsCode('$phone');
+  sendotp(String phone) async {
+    var twilioResponse = await _twilioPhoneVerify.sendSmsCode('$phone');
 
-  if (twilioResponse.successful ?? false) {
-    //code sent
-  } else {
+    if (twilioResponse.successful ?? false) {
+      //code sent
+    } else {}
+  }
 
- }
-}
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -140,13 +138,15 @@ sendotp(String phone) async {
                           var data = json.decode(r.body);
                           EasyLoading.showToast('OTP = ${data['otp']}',
                               duration: Duration(seconds: 5));
-                            Navigator.pushAndRemoveUntil(context,PageTransition(
-                           type: PageTransitionType.rightToLeft,
-                           child: OTPScreen(
-                             hash: data['hash'],
-                             phone: data['phone'],
-                           )),
-                            (route) => false);
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.rightToLeft,
+                                  child: OTPScreen(
+                                    hash: data['hash'],
+                                    phone: data['phone'],
+                                  )),
+                              (route) => false);
                         } else {
                           EasyLoading.showToast('Something Went Wrong!');
                         }
@@ -179,20 +179,4 @@ sendotp(String phone) async {
       ),
     );
   }
-
-// onWillPop() {
-//   DateTime now = DateTime.now();
-//   if (currentBackPressTime == null ||
-//       now.difference(currentBackPressTime) > Duration(seconds: 2)) {
-//     currentBackPressTime = now;
-//     Fluttertoast.showToast(
-//       msg: 'Press Back Once Again to Exit.',
-//       backgroundColor: Colors.black,
-//       textColor: whiteColor,
-//     );
-//     return false;
-//   } else {
-//     return true;
-//   }
-// }
 }

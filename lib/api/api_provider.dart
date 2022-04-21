@@ -158,24 +158,22 @@ class ApiProvider {
     }
   }
 
-  static getReqBodyDataAuthorized({required String endpoint, String query = ""}) async {
+  static getReqBodyDataAuthorized(
+      {required String endpoint, String query = ""}) async {
     final String url = endpoint;
     final _sp = await SharedPreferences.getInstance();
     var token = _sp.getString("AUTH_KEY");
     print(token);
-    var headers = {
-      'Authorization': 'Bearer ${token}'
-    };
+    var headers = {'Authorization': 'Bearer ${token}'};
     print(url);
     try {
       print('In try block');
       Response getReq = await http.post(Uri.parse(url), headers: headers);
       print(getReq.request.toString() + " " + getReq.statusCode.toString());
       print('got here now I will decode body');
-      if(getReq.statusCode>=200 && getReq.statusCode<=210){
+      if (getReq.statusCode >= 200 && getReq.statusCode <= 210) {
         return jsonDecode(getReq.body);
-      }
-      else{
+      } else {
         return 'ronak';
       }
     } catch (e) {
@@ -392,10 +390,26 @@ class ApiProvider {
     }
   }
 
+  addNotification() async {
+    final sp = await s;
+    var token = sp.getString("AUTH_KEY");
+    var headers = {'Authorization': 'Bearer $token'};
+    var request = http.Request('POST',
+        Uri.parse('https://helthmade-1234.herokuapp.com/add-notifaction'));
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      print("notification added");
+    } else {
+      print("error occured in adding notification");
+    }
+  }
+
   ///This function used for searching
   Future<ApiResponse> searchByKeywordActive(String searchKeyword) async {
     ApiResponse cp = await ApiProvider().getReq(
-        endpoint: 'https://helthmade-1234.herokuapp.com/filterProduct?title=',
+        // endpoint: 'https://helthmade-1234.herokuapp.com/filterProduct?title=',
+        endpoint: 'https://helthmade-1234.herokuapp.com/search-product?title=',
         query: searchKeyword);
     print("==searched=>${cp.data}");
     return cp;

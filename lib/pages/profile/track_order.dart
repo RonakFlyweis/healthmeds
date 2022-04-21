@@ -5,7 +5,12 @@ import 'package:newhealthapp/contants/constants.dart';
 // import 'package:timeline/timeline.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
+import '../../api/api_endpoint.dart';
+
 class TrackOrder extends StatefulWidget {
+  final activeOrder;
+
+  const TrackOrder({Key? key, required this.activeOrder}) : super(key: key);
   @override
   _TrackOrderState createState() => _TrackOrderState();
 }
@@ -41,8 +46,11 @@ class _TrackOrderState extends State<TrackOrder> {
                   width: 100.0,
                   height: 100.0,
                   color: whiteColor,
-                  child: Image.asset(
-                      'assets/deal_of_the_day/deal_of_the_day_2.png',
+                  child: Image.network(
+                      (imagebaseurl +
+                              widget.activeOrder["items"][0]["productId"]
+                                  ["productPictures"][0]["filename"])
+                          .toString(),
                       width: 100.0,
                       height: 100.0,
                       fit: BoxFit.fitHeight),
@@ -54,14 +62,12 @@ class _TrackOrderState extends State<TrackOrder> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                          'Garlic Pearls - Natural Way To Heathy Heart & Digestion - 100s',
+                      Text(widget.activeOrder["items"][0]["productId"]["title"],
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: primaryColorHeadingStyle),
                       heightSpace,
-                      Text('Arriving: 29 Aug, 2020',
-                          style: greyNormalTextStyle),
+                      Text('Arriving soon', style: greyNormalTextStyle),
                     ],
                   ),
                 ),
@@ -83,17 +89,19 @@ class _TrackOrderState extends State<TrackOrder> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Padding(
-                      padding: EdgeInsets.only(left: 8.0,top: 15.0),
+                      padding: EdgeInsets.only(left: 8.0, top: 15.0),
                       child: Text(
                         "Order Accept",
-                        style: TextStyle(color: Colors.teal,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.teal, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
                         "21 Aug, 2021",
-                        style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -117,21 +125,23 @@ class _TrackOrderState extends State<TrackOrder> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Padding(
-                      padding: EdgeInsets.only(left: 8.0,top: 8.0),
+                      padding: EdgeInsets.only(left: 8.0, top: 8.0),
                       child: Text(
                         "Order Packed",
-                        style: TextStyle(color: Colors.teal,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.teal, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
                         "21 Aug, 2021",
-                        style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
-                ),                // endChild: Text("ds"),
+                ), // endChild: Text("ds"),
                 // isFirst: true,
                 alignment: TimelineAlign.center,
                 beforeLineStyle: const LineStyle(
@@ -153,21 +163,25 @@ class _TrackOrderState extends State<TrackOrder> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Padding(
-                      padding: EdgeInsets.only(left: 8.0,top: 8.0),
+                      padding: EdgeInsets.only(left: 8.0, top: 8.0),
                       child: Text(
                         "Order Dispatch",
-                        style: TextStyle(color: Colors.teal,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.teal, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(left: 8.0,),
+                      padding: EdgeInsets.only(
+                        left: 8.0,
+                      ),
                       child: Text(
                         "21 Aug, 2021",
-                        style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
-                ),                // endChild: Text("ds"),
+                ), // endChild: Text("ds"),
                 alignment: TimelineAlign.center,
                 // isLast: true,
                 beforeLineStyle: const LineStyle(
@@ -191,24 +205,27 @@ class _TrackOrderState extends State<TrackOrder> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Padding(
-                      padding: EdgeInsets.only(left: 8.0,top:8.0),
+                      padding: EdgeInsets.only(left: 8.0, top: 8.0),
                       child: Text(
                         "Order Arriving at HealthMeds",
-                        style: TextStyle(color: Colors.teal,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.teal, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
                         "Fulfilment Center",
-                        style: TextStyle(color: Colors.teal,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.teal, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 8.0),
                       child: Text(
                         "21 Aug, 2021",
-                        style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -223,7 +240,6 @@ class _TrackOrderState extends State<TrackOrder> {
                   width: 15,
                   color: Colors.red,
                 ),
-
                 endChild: Container(
                   constraints: const BoxConstraints(
                     minHeight: 80,

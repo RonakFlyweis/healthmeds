@@ -222,7 +222,7 @@ class _GetProductListState extends State<GetProductList> {
                                             BorderRadius.circular(5.0),
                                       ),
                                       child: Text(
-                                          '${element['discount_percentage']}'.toUpperCase(),
+                                          '${element['discount_percentage']} %'.toUpperCase(),
                                           style: thickWhiteTextStyle),
                                     ),
                                   ],

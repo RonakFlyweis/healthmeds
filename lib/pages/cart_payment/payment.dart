@@ -6,6 +6,7 @@ import 'package:newhealthapp/api/api_provider.dart';
 
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/home/home.dart';
+import 'package:newhealthapp/widgets/bottomnavi.dart';
 
 class Payment extends StatefulWidget {
   final List<dynamic> cartItems;
@@ -126,14 +127,16 @@ class _PaymentState extends State<Payment> {
                   EasyLoading.show(maskType: EasyLoadingMaskType.black);
                   await api.addOrder('cod', totalAmount.toString(), 'pending',
                       'ordered', widget.cartItems);
+                  await api.addNotification();
                   EasyLoading.dismiss();
                   showDialog(
                     context: context,
                     builder: (BuildContext context) =>
                         successOrderDialog(context),
                   );
-                  Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => Home()));
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => MainPage()),
+                      (Route<dynamic> route) => false);
 
                   // successOrderDialog();
                 },

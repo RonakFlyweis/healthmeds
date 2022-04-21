@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:newhealthapp/api/api_endpoint.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/profile/track_order.dart';
 import 'package:page_transition/page_transition.dart';
 
 class ActiveOrder extends StatelessWidget {
+  final activeOrder;
+
+  const ActiveOrder({Key? key, required this.activeOrder}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -24,7 +28,7 @@ class ActiveOrder extends StatelessWidget {
                   context,
                   PageTransition(
                       type: PageTransitionType.rightToLeft,
-                      child: TrackOrder()));
+                      child: TrackOrder(activeOrder: activeOrder)));
             },
             child: Container(
               padding: EdgeInsets.all(fixPadding * 2.0),
@@ -37,8 +41,10 @@ class ActiveOrder extends StatelessWidget {
                     width: 100.0,
                     height: 100.0,
                     color: whiteColor,
-                    child: Image.asset(
-                        'assets/deal_of_the_day/deal_of_the_day_2.png',
+                    child: Image.network(
+                        (imagebaseurl +
+                            activeOrder["items"][0]["productId"]
+                                ["productPictures"][0]["filename"]).toString(),
                         width: 100.0,
                         height: 100.0,
                         fit: BoxFit.fitHeight),
@@ -50,12 +56,10 @@ class ActiveOrder extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                            'Garlic Pearls - Natural Way To Heathy Heart & Digestion - 100s',
+                        Text(activeOrder["items"][0]["productId"]["title"],
                             style: primaryColorHeadingStyle),
                         heightSpace,
-                        Text('Arriving: 29 Aug, 2020',
-                            style: greyNormalTextStyle),
+                        Text('Arriving soon', style: greyNormalTextStyle),
                         Container(
                           width: width - (fixPadding * 4.0 + 100.0 + 10.0),
                           margin: EdgeInsets.only(
