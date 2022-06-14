@@ -32,8 +32,8 @@ class _ProductItemState extends State<ProductItem> {
   int cartItem = 0;
   int selectedQty = 0;
   bool addedToCart = false;
-  int pricecount = 0;
-  int? v;
+  double pricecount = 0;
+  double? v;
   int? notificationCount = 0;
   dynamic itemData;
   var addressadd;
@@ -61,9 +61,9 @@ class _ProductItemState extends State<ProductItem> {
   getprice() async {
     final cp = await ApiProvider()
         .getReq(endpoint: getSingledetailurl, query: widget.id.toString());
-    // print("==first=${cp.data}");
+    print("==first=${cp.data}");
     final urldata = singleDetailFromJson(cp.data);
-    v = int.parse(urldata.data!.discountPrice.toString());
+    v = double.parse(urldata.data!.discountPrice.toString());
     setState(() {
       pricecount = v ?? 1;
     });
@@ -347,299 +347,6 @@ class _ProductItemState extends State<ProductItem> {
     );
   }
 
-  // selectQtyDialogue() {
-  //   double width = MediaQuery.of(context).size.width;
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext context) {
-  //       // return object of type Dialog
-  //       return Dialog(
-  //         elevation: 0.0,
-  //         shape:
-  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-  //         child: Wrap(
-  //           children: [
-  //             Container(
-  //               padding: EdgeInsets.only(
-  //                   right: fixPadding * 1.5,
-  //                   left: fixPadding * 1.5,
-  //                   top: fixPadding,
-  //                   bottom: fixPadding),
-  //               child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   Text('Select Quantity', style: primaryColorBigHeadingStyle),
-  //                   widthSpace,
-  //                   IconButton(
-  //                     icon: Icon(Icons.close, color: primaryColor),
-  //                     onPressed: () {
-  //                       Navigator.pop(context);
-  //                     },
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             Container(
-  //               width: width,
-  //               height: 0.6,
-  //               color: primaryColor,
-  //             ),
-  //
-  //             (addedToCart)
-  //                 ? InkWell(
-  //                     onTap: () {
-  //                       setState(() {
-  //                         addedToCart = false;
-  //                         selectedQty = 0;
-  //                         cartItem = cartItem - 1;
-  //                         Navigator.pop(context);
-  //                       });
-  //                     },
-  //                     child: Container(
-  //                       width: width,
-  //                       padding: EdgeInsets.all(fixPadding * 1.5),
-  //                       color: Colors.transparent,
-  //                       child: Text('Remove item',
-  //                           style: primaryColorHeadingStyle),
-  //                     ),
-  //                   )
-  //                 : Container(),
-  //             // 1
-  //             InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   cartItem = 0;
-  //                   pricecount = v!;
-  //                 });
-  //                 setState(() {
-  //                   selectedQty = 1;
-  //                   // if (!addedToCart) {
-  //                   cartItem = cartItem + 1;
-  //                   pricecount = pricecount * cartItem;
-  //
-  //                   // }
-  //                   // addedToCart = true;
-  //                 });
-  //                 Navigator.pop(context);
-  //               },
-  //               child: Container(
-  //                 width: width,
-  //                 padding: EdgeInsets.all(fixPadding * 1.5),
-  //                 color:
-  //                     (selectedQty == 1) ? lightGreyColor : Colors.transparent,
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   crossAxisAlignment: CrossAxisAlignment.center,
-  //                   children: [
-  //                     Text('1', style: primaryColorHeadingStyle),
-  //                     (selectedQty == 1)
-  //                         ? Container(
-  //                             width: 26.0,
-  //                             height: 26.0,
-  //                             alignment: Alignment.center,
-  //                             decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(13.0),
-  //                                 color: redColor),
-  //                             child: Icon(Icons.check,
-  //                                 size: 18.0, color: whiteColor),
-  //                           )
-  //                         : Container(),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //
-  //             // 2
-  //             InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   cartItem = 0;
-  //                   pricecount = v!;
-  //                 });
-  //                 setState(() {
-  //                   selectedQty = 2;
-  //                   // if (!addedToCart) {
-  //                   cartItem = cartItem + 2;
-  //                   pricecount = pricecount * cartItem;
-  //
-  //                   // }
-  //                   // addedToCart = true;
-  //                 });
-  //                 Navigator.pop(context);
-  //               },
-  //               child: Container(
-  //                 width: width,
-  //                 padding: EdgeInsets.all(fixPadding * 1.5),
-  //                 color:
-  //                     (selectedQty == 2) ? lightGreyColor : Colors.transparent,
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   crossAxisAlignment: CrossAxisAlignment.center,
-  //                   children: [
-  //                     Text('2', style: primaryColorHeadingStyle),
-  //                     (selectedQty == 2)
-  //                         ? Container(
-  //                             width: 26.0,
-  //                             height: 26.0,
-  //                             alignment: Alignment.center,
-  //                             decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(13.0),
-  //                                 color: redColor),
-  //                             child: Icon(Icons.check,
-  //                                 size: 18.0, color: whiteColor),
-  //                           )
-  //                         : Container(),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //
-  //             // 3
-  //             InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   cartItem = 0;
-  //                   pricecount = v!;
-  //                 });
-  //                 setState(() {
-  //                   selectedQty = 3;
-  //                   // if (!addedToCart) {
-  //                   cartItem = cartItem + 3;
-  //                   pricecount = pricecount * cartItem;
-  //                   // }
-  //                   // addedToCart = true;
-  //                 });
-  //                 Navigator.pop(context);
-  //               },
-  //               child: Container(
-  //                 width: width,
-  //                 padding: EdgeInsets.all(fixPadding * 1.5),
-  //                 color:
-  //                     (selectedQty == 3) ? lightGreyColor : Colors.transparent,
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   crossAxisAlignment: CrossAxisAlignment.center,
-  //                   children: [
-  //                     Text('3', style: primaryColorHeadingStyle),
-  //                     (selectedQty == 3)
-  //                         ? Container(
-  //                             width: 26.0,
-  //                             height: 26.0,
-  //                             alignment: Alignment.center,
-  //                             decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(13.0),
-  //                                 color: redColor),
-  //                             child: Icon(Icons.check,
-  //                                 size: 18.0, color: whiteColor),
-  //                           )
-  //                         : Container(),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //
-  //             //4
-  //             InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   cartItem = 0;
-  //                   pricecount = v!;
-  //                 });
-  //                 setState(() {
-  //                   selectedQty = 4;
-  //                   // if (!addedToCart) {
-  //                   cartItem = cartItem + 4;
-  //                   pricecount = pricecount * cartItem;
-  //                   // }
-  //                   // addedToCart = true;
-  //                 });
-  //                 Navigator.pop(context);
-  //               },
-  //               child: Container(
-  //                 width: width,
-  //                 padding: EdgeInsets.all(fixPadding * 1.5),
-  //                 color:
-  //                     (selectedQty == 4) ? lightGreyColor : Colors.transparent,
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   crossAxisAlignment: CrossAxisAlignment.center,
-  //                   children: [
-  //                     Text('4', style: primaryColorHeadingStyle),
-  //                     (selectedQty == 4)
-  //                         ? Container(
-  //                             width: 26.0,
-  //                             height: 26.0,
-  //                             alignment: Alignment.center,
-  //                             decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(13.0),
-  //                                 color: redColor),
-  //                             child: Icon(Icons.check,
-  //                                 size: 18.0, color: whiteColor),
-  //                           )
-  //                         : Container(),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //
-  //             // 5
-  //             InkWell(
-  //               onTap: () {
-  //                 setState(() {
-  //                   cartItem = 0;
-  //                   pricecount = v!;
-  //                 });
-  //                 setState(() {
-  //                   selectedQty = 5;
-  //                   // if (!addedToCart) {
-  //                   cartItem = cartItem + 5;
-  //                   pricecount = pricecount * cartItem;
-  //                   // }
-  //                   // addedToCart = true;
-  //                 });
-  //                 Navigator.pop(context);
-  //               },
-  //               child: Container(
-  //                 width: width,
-  //                 padding: EdgeInsets.all(fixPadding * 1.5),
-  //                 color:
-  //                     (selectedQty == 5) ? lightGreyColor : Colors.transparent,
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   crossAxisAlignment: CrossAxisAlignment.center,
-  //                   children: [
-  //                     Row(
-  //                       crossAxisAlignment: CrossAxisAlignment.center,
-  //                       children: [
-  //                         Text('5', style: primaryColorHeadingStyle),
-  //                         widthSpace,
-  //                         Text('Max Qty', style: lightPrimaryColorTextStyle),
-  //                       ],
-  //                     ),
-  //                     (selectedQty == 5)
-  //                         ? Container(
-  //                             width: 26.0,
-  //                             height: 26.0,
-  //                             alignment: Alignment.center,
-  //                             decoration: BoxDecoration(
-  //                                 borderRadius: BorderRadius.circular(13.0),
-  //                                 color: redColor),
-  //                             child: Icon(Icons.check,
-  //                                 size: 18.0, color: whiteColor),
-  //                           )
-  //                         : Container(),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     // final productDetails = widget.productDetails;
@@ -724,6 +431,7 @@ class _ProductItemState extends State<ProductItem> {
                       Fluttertoast.showToast(msg: ' Plz Selected Quantity');
                     } else {
                       EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                      print("price===========" + pricecount.toString());
                       await ApiProvider()
                           .addtocart(widget.id, '$selectedQty', '$pricecount');
                       final data = await ApiProvider.getcartItems();
@@ -985,7 +693,11 @@ class _ProductItemState extends State<ProductItem> {
                   greyColorDividerStyle(),
 
                   // Description & Key Features Section Start
-                  descriptionAndKeyFeatures(),
+                  descriptionAndKeyFeatures(
+                      item.data?.description ?? 'No Description',
+                      item.data?.brandName ?? 'Generic',
+                      item.data?.manufacturerName ?? 'No Info',
+                      item.data?.countryOrigin ?? 'India'),
                   // Description & Key Features Section End
                 ],
               );
@@ -1008,8 +720,8 @@ class _ProductItemState extends State<ProductItem> {
     );
   }
 
-  descriptionAndKeyFeatures() {
-    // final item = widget.productDetails;
+  descriptionAndKeyFeatures(
+      String description, String brand, String manufacturer, String country) {
     return Container(
       padding: EdgeInsets.all(fixPadding * 2.0),
       child: Column(
@@ -1019,39 +731,41 @@ class _ProductItemState extends State<ProductItem> {
           Text('Description', style: primaryColorHeadingStyle),
           heightSpace,
           Text(
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
+            description,
             style: blackNormalTextStyle,
           ),
-          heightSpace,
-          heightSpace,
-          // Key Features Start
-          Text('Key Features', style: primaryColorHeadingStyle),
-          heightSpace,
-          getKeyFeaturesPoint(
-              'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
-          heightSpace,
-          getKeyFeaturesPoint(
-              'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
-          heightSpace,
-          getKeyFeaturesPoint(
-              'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
-          heightSpace,
-          getKeyFeaturesPoint(
-              'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
-          // Key Features End
           heightSpace,
           heightSpace,
           greyDivider(),
           heightSpace,
           heightSpace,
+          // // Key Features Start
+          // Text('Key Features', style: primaryColorHeadingStyle),
+          // heightSpace,
+          // getKeyFeaturesPoint(
+          //     'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
+          // heightSpace,
+          // getKeyFeaturesPoint(
+          //     'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
+          // heightSpace,
+          // getKeyFeaturesPoint(
+          //     'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
+          // heightSpace,
+          // getKeyFeaturesPoint(
+          //     'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.'),
+          // // Key Features End
+          // heightSpace,
+          // heightSpace,
+          // heightSpace,
+          // heightSpace,
           // Features and Details Start
           Text('Features & Details', style: primaryColorHeadingStyle),
           heightSpace,
-          getFeaturesAndDetailsItem('Brand:', 'company name'),
+          getFeaturesAndDetailsItem('Brand:', brand),
           heightSpace,
-          getFeaturesAndDetailsItem('Manufacturer:', 'manufacturer'),
+          getFeaturesAndDetailsItem('Manufacturer:', manufacturer),
           heightSpace,
-          getFeaturesAndDetailsItem('Country of Origin:', 'countryOfOrigin'),
+          getFeaturesAndDetailsItem('Country of Origin:', country),
           // Features and Details End
           heightSpace,
           heightSpace,

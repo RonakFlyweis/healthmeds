@@ -7,6 +7,7 @@ import 'package:newhealthapp/api/api_provider.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/home/home.dart';
 import 'package:newhealthapp/widgets/bottomnavi.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class Payment extends StatefulWidget {
   final List<dynamic> cartItems;
@@ -17,29 +18,15 @@ class Payment extends StatefulWidget {
 }
 
 class _PaymentState extends State<Payment> {
-  bool amazon = true,
-      card = false,
-      paypal = false,
-      skrill = false,
-      cashOn = false;
+  bool razorpay = false, cash = true;
   Color _colorContainer = Colors.blue;
   Future delay() async {
     Future.delayed(Duration(seconds: 1), () {
-      // 5 seconds over, navigate to Page2.
       Navigator.push(context, MaterialPageRoute(builder: (_) => Home()));
     });
-    // await new Future.delayed(new Duration(milliseconds: 1500), ()
-    // {
-    //   Navigator.of(context).pushNamed("/home");
-    // }
   }
 
   successOrderDialog(BuildContext context) {
-    // showDialog(
-    //   context: context,
-    //   barrierDismissible: false,
-    //   builder: (BuildContext context) {
-    // return object of type Dialog
     return AlertDialog(
       content: Container(
         height: 170.0,
@@ -93,6 +80,82 @@ class _PaymentState extends State<Payment> {
     // );
   }
 
+  late Razorpay _razorpay;
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _razorpay.clear();
+  }
+
+  void openCheckout() async {
+    double totalAmount = 0.0;
+    for (int i = 0; i < widget.cartItems.length; i++) {
+      totalAmount += double.parse(widget.cartItems[i]["payablePrice"]);
+    }
+    print('opened Checkout');
+    var options = {
+      'key': 'rzp_test_fATrBVO2Ry2l55',
+      'amount': totalAmount * 100,
+      'name': 'V Meds',
+      'description': 'Order Checkout',
+      'retry': {'enabled': true, 'maxCount': 1},
+      'prefill': {'contact': '8888888888', 'email': 'test@razorpay.com'},
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      print('Error : ' + e.toString());
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    EasyLoading.showSuccess('Success: ' + response.paymentId!,
+        maskType: EasyLoadingMaskType.black);
+    EasyLoading.show(status: 'Loading...', dismissOnTap: false);
+    ApiProvider api = ApiProvider();
+    int totalAmount = 0;
+    for (int i = 0; i < widget.cartItems.length; i++) {
+      totalAmount += int.parse(widget.cartItems[i]["payablePrice"]);
+    }
+    EasyLoading.show(maskType: EasyLoadingMaskType.black);
+    await api.addOrder(
+        'cod', totalAmount.toString(), 'pending', 'ordered', widget.cartItems);
+    await api.addNotification();
+    EasyLoading.dismiss();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => successOrderDialog(context),
+    );
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => MainPage()),
+        (Route<dynamic> route) => false);
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    EasyLoading.showError(
+        'Error: ' + response.code.toString() + ' - ' + response.message!,
+        maskType: EasyLoadingMaskType.black);
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    EasyLoading.showToast('External_Wallet: ' + response.walletName!,
+        maskType: EasyLoadingMaskType.black);
+  }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -117,27 +180,29 @@ class _PaymentState extends State<Payment> {
               InkWell(
                 borderRadius: BorderRadius.circular(5.0),
                 onTap: () async {
-                  //TODO implement order
-                  ApiProvider api = ApiProvider();
-                  int totalAmount = 0;
-                  for (int i = 0; i < widget.cartItems.length; i++) {
-                    totalAmount +=
-                        int.parse(widget.cartItems[i]["payablePrice"]);
+                  if (razorpay == true) {
+                    openCheckout();
+                  } else {
+                    ApiProvider api = ApiProvider();
+                    int totalAmount = 0;
+                    for (int i = 0; i < widget.cartItems.length; i++) {
+                      totalAmount +=
+                          int.parse(widget.cartItems[i]["payablePrice"]);
+                    }
+                    EasyLoading.show(maskType: EasyLoadingMaskType.black);
+                    await api.addOrder('card', totalAmount.toString(),
+                        'completed', 'ordered', widget.cartItems);
+                    await api.addNotification();
+                    EasyLoading.dismiss();
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          successOrderDialog(context),
+                    );
+                    Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => MainPage()),
+                        (Route<dynamic> route) => false);
                   }
-                  EasyLoading.show(maskType: EasyLoadingMaskType.black);
-                  await api.addOrder('cod', totalAmount.toString(), 'pending',
-                      'ordered', widget.cartItems);
-                  await api.addNotification();
-                  EasyLoading.dismiss();
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) =>
-                        successOrderDialog(context),
-                  );
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => MainPage()),
-                      (Route<dynamic> route) => false);
-
                   // successOrderDialog();
                 },
                 child: Container(
@@ -162,10 +227,7 @@ class _PaymentState extends State<Payment> {
         children: [
           getPaymentTile(
               'Pay on Delivery', 'assets/payment_icon/cash_on_delivery.png'),
-          getPaymentTile('Amazon Pay', 'assets/payment_icon/amazon_pay.png'),
-          getPaymentTile('Card', 'assets/payment_icon/card.png'),
-          getPaymentTile('PayPal', 'assets/payment_icon/paypal.png'),
-          getPaymentTile('Skrill', 'assets/payment_icon/skrill.png'),
+          getPaymentTile('RazorPay', 'assets/razorpay.png'),
           Container(height: fixPadding * 2.0),
         ],
       ),
@@ -177,43 +239,13 @@ class _PaymentState extends State<Payment> {
       onTap: () {
         if (title == 'Pay on Delivery') {
           setState(() {
-            cashOn = true;
-            amazon = false;
-            card = false;
-            paypal = false;
-            skrill = false;
+            razorpay = false;
+            cash = true;
           });
-        } else if (title == 'Amazon Pay') {
+        } else if (title == 'RazorPay') {
           setState(() {
-            cashOn = false;
-            amazon = true;
-            card = false;
-            paypal = false;
-            skrill = false;
-          });
-        } else if (title == 'Card') {
-          setState(() {
-            cashOn = false;
-            amazon = false;
-            card = true;
-            paypal = false;
-            skrill = false;
-          });
-        } else if (title == 'PayPal') {
-          setState(() {
-            cashOn = false;
-            amazon = false;
-            card = false;
-            paypal = true;
-            skrill = false;
-          });
-        } else if (title == 'Skrill') {
-          setState(() {
-            cashOn = false;
-            amazon = false;
-            card = false;
-            paypal = false;
-            skrill = true;
+            razorpay = true;
+            cash = false;
           });
         }
       },
@@ -228,24 +260,12 @@ class _PaymentState extends State<Payment> {
           border: Border.all(
             width: 1.0,
             color: (title == 'Pay on Delivery')
-                ? (cashOn)
+                ? (cash)
                     ? primaryColor
-                    : Colors.grey.shade300
-                : (title == 'Amazon Pay')
-                    ? (amazon)
-                        ? primaryColor
-                        : Colors.grey.shade300
-                    : (title == 'Card')
-                        ? (card)
-                            ? primaryColor
-                            : Colors.grey.shade300
-                        : (title == 'PayPal')
-                            ? (paypal)
-                                ? primaryColor
-                                : Colors.grey.shade300
-                            : (skrill)
-                                ? primaryColor
-                                : Colors.grey.shade300,
+                    : Colors.transparent
+                : (razorpay)
+                    ? primaryColor
+                    : Colors.transparent,
           ),
           color: whiteColor,
         ),
@@ -275,24 +295,12 @@ class _PaymentState extends State<Payment> {
                 border: Border.all(
                   width: 1.5,
                   color: (title == 'Pay on Delivery')
-                      ? (cashOn)
+                      ? (cash)
                           ? primaryColor
-                          : Colors.grey.shade300
-                      : (title == 'Amazon Pay')
-                          ? (amazon)
-                              ? primaryColor
-                              : Colors.grey.shade300
-                          : (title == 'Card')
-                              ? (card)
-                                  ? primaryColor
-                                  : Colors.grey.shade300
-                              : (title == 'PayPal')
-                                  ? (paypal)
-                                      ? primaryColor
-                                      : Colors.grey.shade300
-                                  : (skrill)
-                                      ? primaryColor
-                                      : Colors.grey.shade300,
+                          : Colors.transparent
+                      : (razorpay)
+                          ? primaryColor
+                          : Colors.transparent,
                 ),
               ),
               child: Container(
@@ -302,24 +310,12 @@ class _PaymentState extends State<Payment> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5.0),
                   color: (title == 'Pay on Delivery')
-                      ? (cashOn)
+                      ? (cash)
                           ? primaryColor
                           : Colors.transparent
-                      : (title == 'Amazon Pay')
-                          ? (amazon)
-                              ? primaryColor
-                              : Colors.transparent
-                          : (title == 'Card')
-                              ? (card)
-                                  ? primaryColor
-                                  : Colors.transparent
-                              : (title == 'PayPal')
-                                  ? (paypal)
-                                      ? primaryColor
-                                      : Colors.transparent
-                                  : (skrill)
-                                      ? primaryColor
-                                      : Colors.transparent,
+                      : (razorpay)
+                          ? primaryColor
+                          : Colors.transparent,
                 ),
               ),
             ),

@@ -27,7 +27,7 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  int cartValue = 0;
+  double cartValue = 0;
   int totalOldPrice = 0;
   late int deliveryCharge = 0;
   bool isLoading = true;
@@ -107,9 +107,9 @@ class _CartState extends State<Cart> {
     if (cartList.length > 0) {
       cartValue = 0;
       for (int i = 0; i < cartList.length; i++) {
-        int price = int.parse(cartList[i]['price'].toString());
+        double price = double.parse(cartList[i]['price'].toString());
         int qty = int.parse(cartList[i]['quantity'].toString());
-        int total = price * qty;
+        double total = price * qty;
         cartValue = cartValue + total;
       }
       setState(() {
