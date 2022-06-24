@@ -15,7 +15,8 @@ import 'api_response.dart';
 class ApiProvider {
   // -------------------------------------------Webservice Url--------------------------------------------------------------
 
-  static String baseUrl = 'https://helthmade-1234.herokuapp.com/';
+  // static String baseUrl = '${ApiProvider.baseUrl}';
+  static String baseUrl = 'http://mern.online:2002/';
 
 // ------------------------------------------------------------------------------------------------------------------
 
@@ -121,7 +122,7 @@ class ApiProvider {
     var token = _sp.getString("AUTH_KEY");
     var headers = {'Authorization': 'Bearer ${token}'};
     var request = http.MultipartRequest(
-        'POST', Uri.parse('https://helthmade-1234.herokuapp.com/prescrption'));
+        'POST', Uri.parse('${ApiProvider.baseUrl}prescrption'));
     for (int i = 0; i < prescriptionFilePath.length; i++) {
       request.files.add(await http.MultipartFile.fromPath(
           'myField', prescriptionFilePath[i]));
@@ -183,7 +184,7 @@ class ApiProvider {
   }
 
   static getcartItems() async {
-    final String url = 'https://helthmade-1234.herokuapp.com/user/getCartItems';
+    final String url = '${ApiProvider.baseUrl}user/getCartItems';
     final _sp = await SharedPreferences.getInstance();
     var token = _sp.getString("AUTH_KEY");
     //var header = {'accessToken': '$token'};
@@ -234,8 +235,8 @@ class ApiProvider {
       'Authorization': 'Bearer ${token}'
     };
     try {
-      var request = http.Request('POST',
-          Uri.parse('https://helthmade-1234.herokuapp.com/user/getCartItems'));
+      var request = http.Request(
+          'POST', Uri.parse('${ApiProvider.baseUrl}user/getCartItems'));
 
       request.headers.addAll(headers);
 
@@ -344,8 +345,8 @@ class ApiProvider {
       'Authorization': 'Bearer ${token}',
       'Content-Type': 'application/json'
     };
-    var request = http.Request('POST',
-        Uri.parse('https://helthmade-1234.herokuapp.com/user/removeCartItem'));
+    var request = http.Request(
+        'POST', Uri.parse('${ApiProvider.baseUrl}user/removeCartItem'));
     request.body = json.encode({"productId": productId});
     request.headers.addAll(headers);
 
@@ -368,8 +369,8 @@ class ApiProvider {
       'Authorization': 'Bearer ${token}',
       'Content-Type': 'application/json'
     };
-    var request = http.Request(
-        'POST', Uri.parse('https://helthmade-1234.herokuapp.com/addOrder'));
+    var request =
+        http.Request('POST', Uri.parse('${ApiProvider.baseUrl}addOrder'));
     request.body = jsonEncode({
       "paymentType": paymentType,
       "totalAmount": amount,
@@ -382,7 +383,10 @@ class ApiProvider {
     http.StreamedResponse response = await request.send();
     print(response.statusCode);
     if (response.statusCode >= 200 && response.statusCode <= 210) {
-      Fluttertoast.showToast(msg: 'Order added successfully');
+      Fluttertoast.showToast(
+          msg:
+              'Order added successfully! Keep the prescription ready when order gets delivered',
+          toastLength: Toast.LENGTH_LONG);
       print(await response.stream.bytesToString());
     } else {
       Fluttertoast.showToast(msg: 'Something went wrong try again later');
@@ -394,8 +398,8 @@ class ApiProvider {
     final sp = await s;
     var token = sp.getString("AUTH_KEY");
     var headers = {'Authorization': 'Bearer $token'};
-    var request = http.Request('POST',
-        Uri.parse('https://helthmade-1234.herokuapp.com/add-notifaction'));
+    var request = http.Request(
+        'POST', Uri.parse('${ApiProvider.baseUrl}add-notifaction'));
     request.headers.addAll(headers);
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
@@ -408,8 +412,8 @@ class ApiProvider {
   ///This function used for searching
   Future<ApiResponse> searchByKeywordActive(String searchKeyword) async {
     ApiResponse cp = await ApiProvider().getReq(
-        // endpoint: 'https://helthmade-1234.herokuapp.com/filterProduct?title=',
-        endpoint: 'https://helthmade-1234.herokuapp.com/search-product?title=',
+        // endpoint: '${ApiProvider.baseUrl}filterProduct?title=',
+        endpoint: '${ApiProvider.baseUrl}search-product?title=',
         query: searchKeyword);
     print("==searched=>${cp.data}");
     return cp;

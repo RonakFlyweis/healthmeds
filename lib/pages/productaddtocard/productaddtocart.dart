@@ -697,7 +697,9 @@ class _ProductItemState extends State<ProductItem> {
                       item.data?.description ?? 'No Description',
                       item.data?.brandName ?? 'Generic',
                       item.data?.manufacturerName ?? 'No Info',
-                      item.data?.countryOrigin ?? 'India'),
+                      item.data?.countryOrigin ?? 'India',
+                      item.data?.disclaimer ??
+                          'If the seal of product is broken, It will not be returnable'),
                   // Description & Key Features Section End
                 ],
               );
@@ -720,8 +722,8 @@ class _ProductItemState extends State<ProductItem> {
     );
   }
 
-  descriptionAndKeyFeatures(
-      String description, String brand, String manufacturer, String country) {
+  descriptionAndKeyFeatures(String description, String brand,
+      String manufacturer, String country, String disclaimer) {
     return Container(
       padding: EdgeInsets.all(fixPadding * 2.0),
       child: Column(
@@ -775,9 +777,7 @@ class _ProductItemState extends State<ProductItem> {
           // Disclaimer Start
           Text('Disclaimer', style: primaryColorHeadingStyle),
           heightSpace,
-          Text(
-              'If the seal of the product is broken it will be non-returnable.',
-              style: primaryColorNormalThinTextStyle),
+          Text(disclaimer, style: primaryColorNormalThinTextStyle),
           // Disclaimer End
         ],
       ),

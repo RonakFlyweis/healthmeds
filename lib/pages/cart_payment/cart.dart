@@ -5,15 +5,13 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:newhealthapp/api/api_provider.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/cart_payment/payment.dart';
-import 'package:newhealthapp/pages/choose_location_address/select_address.dart';
-import 'package:newhealthapp/pages/home/handpicked_item_grid.dart';
 import 'package:newhealthapp/pages/order_medicines/order_medicines.dart';
 import 'package:newhealthapp/pages/search/search.dart';
 import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:newhealthapp/widgets/column_builder.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:intl/intl.dart';
 import '../../api/api_endpoint.dart';
 import '../choose_location_address/choose_location.dart';
 import '../terms_and_conditions.dart';
@@ -67,12 +65,23 @@ class _CartState extends State<Cart> {
     print(address);
     // getCartItemsList();
     cartList = widget.cartList;
+    createDeliveryDate();
     calculateCartValue();
     calculateTotalOldPrice();
     getDeliveryCharge();
     setState(() {
       isLoading = false;
     });
+  }
+
+  String? date;
+
+  createDeliveryDate() {
+    DateTime now = DateTime.now();
+    DateTime deliveryDate = now.add(Duration(days: 3));
+    final f = new DateFormat('dd-MM-yyyy');
+    date = f.format(deliveryDate!);
+    print(date);
   }
 
   getCartItemsList() async {
@@ -593,8 +602,7 @@ class _CartState extends State<Cart> {
                                     Text('Delivery by:',
                                         style: subHeadingStyle),
                                     widthSpace,
-                                    Text('25-Aug-2020',
-                                        style: subHeadingBoldStyle),
+                                    Text('$date', style: subHeadingBoldStyle),
                                   ],
                                 ),
                               ],

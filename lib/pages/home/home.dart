@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:badges/badges.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/cupertino.dart';
@@ -81,11 +80,10 @@ class _HomeState extends State<Home> {
   }
 
   openWhatsapp() async {
-    //TODO add respective numbers and link
     var whatsapp = "+919010203889";
     var whatsappURl_android =
-        "whatsapp://send?phone=" + whatsapp + "&text=Hello";
-    var whatappURL_ios = "https://wa.me/$whatsapp?text=${Uri.parse("Hello")}";
+        "whatsapp://send?phone=" + whatsapp + "&text=Hello Vmeds";
+    var whatappURL_ios = "https://wa.me/$whatsapp?text=${Uri.parse("Hello Vmeds")}";
     if (Platform.isIOS) {
       // for iOS phone only
       if (await canLaunch(whatappURL_ios)) {
@@ -105,7 +103,7 @@ class _HomeState extends State<Home> {
     }
   }
 
-  ///This method is used for show notricafication on buy Icon
+  ///This method is used for show notification on buy Icon
   showNotification() async {
     final cp = await getphoneNumber();
     CartItemDetail item = cartItemDetailFromJson(cp.data);
@@ -223,6 +221,7 @@ class _HomeState extends State<Home> {
             onPressed: () async {
               EasyLoading.show(maskType: EasyLoadingMaskType.black);
               final data = await ApiProvider.getcartItems();
+              print(data);
               final cartList;
               if (data["data"].length == 0) {
                 cartList = [];

@@ -10,6 +10,8 @@ import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../api/api_provider.dart';
+
 class Notifications extends StatefulWidget {
   @override
   _NotificationsState createState() => _NotificationsState();
@@ -20,7 +22,7 @@ class _NotificationsState extends State<Notifications> {
     final sp = await SharedPreferences.getInstance();
     var token = sp.getString("AUTH_KEY");
     http.Response response = await http.get(
-        Uri.parse('https://helthmade-1234.herokuapp.com/notifaction'),
+        Uri.parse('${ApiProvider.baseUrl}notifaction'),
         headers: {'Authorization': 'Bearer ${token}'});
     if (response.statusCode >= 200 && response.statusCode <= 210) {
       return jsonDecode(response.body);

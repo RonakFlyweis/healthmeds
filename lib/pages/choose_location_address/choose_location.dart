@@ -42,7 +42,7 @@ class _ChooseLocationState extends State<ChooseLocation> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString("AUTH_KEY");
     print('Token Bearer:' + token.toString());
-    Uri url = Uri.parse('https://helthmade-1234.herokuapp.com/getAddress');
+    Uri url = Uri.parse('${ApiProvider.baseUrl}getAddress');
     http.Response response = await http.get(url, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${token}'
@@ -334,7 +334,10 @@ class _ChooseLocationState extends State<ChooseLocation> {
                                                 type: PageTransitionType
                                                     .rightToLeft,
                                                 child: AddAddress()))
-                                        .then((value) {
+                                        .then((value) async {
+                                      EasyLoading.show();
+                                      await showAddressApi();
+                                      EasyLoading.dismiss();
                                       setState(() {});
                                     });
                                   },

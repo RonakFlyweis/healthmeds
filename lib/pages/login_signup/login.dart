@@ -74,7 +74,7 @@ class _LoginState extends State<Login> {
                   heightSpace,
                   heightSpace,
                   Image.asset(
-                    'assets/mainAppIcon.jpeg',
+                    'assets/appIcon.png',
                     width: 200.0,
                     fit: BoxFit.fitWidth,
                   ),

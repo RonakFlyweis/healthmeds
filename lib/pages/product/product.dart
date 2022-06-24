@@ -958,7 +958,7 @@ class _ProductState extends State<Product> {
           Text('Disclaimer', style: primaryColorHeadingStyle),
           heightSpace,
           Text(
-              'If the seal of the product is broken it will be non-returnable.',
+              item['disclaimer'],
               style: primaryColorNormalThinTextStyle),
           // Disclaimer End
         ],

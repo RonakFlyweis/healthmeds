@@ -12,6 +12,8 @@ import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../api/api_provider.dart';
+
 class AddAddress extends StatefulWidget {
   @override
   _AddAddressState createState() => _AddAddressState();
@@ -50,7 +52,7 @@ class _AddAddressState extends State<AddAddress> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString("AUTH_KEY");
     print(token);
-    Uri url = Uri.parse('https://helthmade-1234.herokuapp.com/addAddress');
+    Uri url = Uri.parse('${ApiProvider.baseUrl}addAddress');
     http.Response response = await http.post(url, body: jsonEncode({
       "deliver_to": name.text.toString(),
       "pincode": pincode.text.toString(),

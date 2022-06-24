@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:newhealthapp/Model/serachedM/serachedm.dart';
 import 'package:newhealthapp/api/api_endpoint.dart';
 import 'package:newhealthapp/api/api_provider.dart';
 import 'package:newhealthapp/pages/productaddtocard/productaddtocart.dart';
-import 'package:newhealthapp/pages/search/previously_purchased_item.dart';
-import 'package:newhealthapp/pages/search/recently_search_item.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -24,37 +20,6 @@ class _SearchState extends State<Search> {
   Timer? _debounce;
   final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  // Future fetchPost(String key) async {
-  //   final response = await http.get(Uri.parse(
-  //       'https://helthmade-1234.herokuapp.com/search-product?title=$key'));
-  //   print(response.request);
-  //   print(response.body);
-  //   if (response.statusCode == 200) {
-  //     return jsonDecode(response.body);
-  //   } else {
-  //     throw Exception('Failed to load post');
-  //   }
-  // }
-
-  // loadResult() async {
-  //   fetchPost(_searchKeyword.text.toString()).then((res) async {
-  //     _postsController?.add(res);
-  //     return res;
-  //   });
-  // }
-
-  // showSnack() {
-  //   return EasyLoading.showToast('New Content Loaded');
-  // }
-  //
-  // Future<Null> _handleRefresh() async {
-  //   fetchPost(_searchKeyword.text.toString()).then((res) async {
-  //     _postsController?.add(res);
-  //     showSnack();
-  //     return null;
-  //   });
-  // }
-
   _search() async {
     if (_searchKeyword.text == null || _searchKeyword.text.length == 0) {
       _streamController?.add(null);
@@ -63,7 +28,7 @@ class _SearchState extends State<Search> {
 
     _streamController?.add("waiting");
     http.Response response = await http.get(Uri.parse(
-        'https://helthmade-1234.herokuapp.com/search-product?title=${_searchKeyword.text.toString()}'));
+        '${ApiProvider.baseUrl}search-product?title=${_searchKeyword.text.toString()}'));
     _streamController?.add(json.decode(response.body));
   }
 
@@ -73,11 +38,6 @@ class _SearchState extends State<Search> {
     _stream = _streamController?.stream;
     super.initState();
   }
-
-  // Stream get searchproduct async* {
-  //   print('InSide Stream');
-  //   yield await ApiProvider().searchByKeywordActive(_searchKeyword.text);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -94,9 +54,6 @@ class _SearchState extends State<Search> {
             borderRadius: BorderRadius.circular(5.0),
           ),
           child: TextField(
-            // onChanged: (value) {
-            //   // _handleRefresh();
-            // },
             onChanged: (String text) {
               if (_debounce?.isActive ?? false) _debounce?.cancel();
               _debounce = Timer(const Duration(milliseconds: 1000), () {
@@ -132,11 +89,6 @@ class _SearchState extends State<Search> {
                       child: CircularProgressIndicator(),
                     );
                   }
-                  // if (s.connectionState == ConnectionState.waiting) {
-                  //   return const Center(child: CircularProgressIndicator());
-                  // } else if (s.hasData &&
-                  //     s.connectionState == ConnectionState.done) {
-                  // SearchedModel item = searchedModelFromJson(s.data.data);
                   return Container(
                     // width: double.infinity,
                     // height: 600,
@@ -175,12 +127,6 @@ class _SearchState extends State<Search> {
                                             imagebaseurl +
                                                 data["productPictures"][0]
                                                     ["filename"],
-                                            // item
-                                            //     .data!
-                                            //     .response![i]
-                                            //     .productPictures![0]
-                                            //     .filename
-                                            //     .toString(),
                                           ),
                                           fit: BoxFit.fitHeight,
                                         ),
@@ -198,7 +144,6 @@ class _SearchState extends State<Search> {
                                         children: [
                                           Text(
                                               '${data["title"]} ${data["pack_size"]}',
-                                              // '${item.data!.response![i].title} ${item.data!.response![i].packSize}',
                                               style: primaryColorHeadingStyle),
                                           const SizedBox(height: 5.0),
                                           Row(
@@ -209,11 +154,9 @@ class _SearchState extends State<Search> {
                                             children: [
                                               Text(
                                                   '\₹${data["discount_price"]}',
-                                                  // '\₹${item.data!.response![i].discountPrice}',
                                                   style: priceStyle),
                                               widthSpace,
                                               Text('\₹${data["price"]}',
-                                                  // '\₹${item.data!.response![i].price}',
                                                   style: oldStyle),
                                               widthSpace,
                                               Container(
@@ -230,7 +173,6 @@ class _SearchState extends State<Search> {
                                                 ),
                                                 child: Text(
                                                     '${data["discount_percentage"]} %'
-                                                        // '${item.data!.response![i].discountPercentage} %'
                                                         .toUpperCase(),
                                                     style: thickWhiteTextStyle),
                                               ),
@@ -253,37 +195,8 @@ class _SearchState extends State<Search> {
                       },
                     ),
                   );
-                  // : Container(
-                  //     child: Text(
-                  //       'No Product Found',
-                  //       style:
-                  //           TextStyle(fontSize: 20, color: Colors.black),
-                  //     ),
-                  //   );
-                  // } else if (s.connectionState == ConnectionState.none) {
-                  //   return Center(
-                  //     child: Container(
-                  //       child: Text(
-                  //         'No Product Found',
-                  //         style: TextStyle(fontSize: 20, color: Colors.black),
-                  //       ),
-                  //     ),
-                  //   );
-                  // }
-                  // return const Center(
-                  //     child: Text(
-                  //   "OOPS! NO DATA!",
-                  //   style: TextStyle(color: Colors.black),
-                  // ));
                 }),
           ),
-          // Recently Search Item Start
-          // RecentlySearchItem(),
-          // // Recently Search Item End
-          // heightSpace,
-          // // Previously Purchased Item Start
-          // PreviouslyPurchasedItem(),
-          // Previously Purchased Item End
         ],
       ),
     );

@@ -72,6 +72,14 @@ class _PaymentState extends State<Payment> {
               style: orderPlacedTextStyle,
               textAlign: TextAlign.center,
             ),
+            const SizedBox(
+              height: 20.0,
+            ),
+            Text(
+              "Keep the prescription ready when order gets delivered",
+              style: orderPlacedTextStyle,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -184,10 +192,10 @@ class _PaymentState extends State<Payment> {
                     openCheckout();
                   } else {
                     ApiProvider api = ApiProvider();
-                    int totalAmount = 0;
+                    double totalAmount = 0;
                     for (int i = 0; i < widget.cartItems.length; i++) {
                       totalAmount +=
-                          int.parse(widget.cartItems[i]["payablePrice"]);
+                          double.parse(widget.cartItems[i]["payablePrice"]);
                     }
                     EasyLoading.show(maskType: EasyLoadingMaskType.black);
                     await api.addOrder('card', totalAmount.toString(),

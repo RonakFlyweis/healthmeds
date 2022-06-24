@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/order_medicines/previously_bought_item.dart';
 import 'package:page_transition/page_transition.dart';
@@ -26,17 +27,22 @@ class _PreviousOrderState extends State<PreviousOrder> {
             onTap: () async {
               EasyLoading.show();
               final body = await ApiProvider.getReqBodyDataAuthorized(
-                  endpoint:
-                      'https://helthmade-1234.herokuapp.com/getPreviouslyBoughtItem');
+                  endpoint: '${ApiProvider.baseUrl}getPreviouslyBoughtItem');
               EasyLoading.dismiss();
-              Navigator.push(
-                  context,
-                  PageTransition(
-                      type: PageTransitionType.rightToLeft,
-                      child: PreviouslyBoughtItem(
-                        previouslyBoughtItem: body['data']
-                            [body['data'].length - 1]['items'],
-                      )));
+              if (body['data'].length == 0) {
+                Fluttertoast.showToast(
+                    msg: 'No Previously Bought Items! Buy some first..',
+                    toastLength: Toast.LENGTH_LONG);
+              } else {
+                Navigator.push(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.rightToLeft,
+                        child: PreviouslyBoughtItem(
+                          previouslyBoughtItem: body['data']
+                              [body['data'].length - 1]['items'],
+                        )));
+              }
             },
             child: Container(
               width: ((width / 2.0) - fixPadding * 2.5),
@@ -77,17 +83,22 @@ class _PreviousOrderState extends State<PreviousOrder> {
             onTap: () async {
               EasyLoading.show();
               final body = await ApiProvider.getReqBodyDataAuthorized(
-                  endpoint:
-                      'https://helthmade-1234.herokuapp.com/getPreviouslyBoughtItem');
+                  endpoint: '${ApiProvider.baseUrl}getPreviouslyBoughtItem');
               EasyLoading.dismiss();
-              Navigator.push(
-                  context,
-                  PageTransition(
-                      type: PageTransitionType.rightToLeft,
-                      child: PreviouslyBoughtItem(
-                        previouslyBoughtItem: body['data']
-                            [body['data'].length - 1]['items'],
-                      )));
+              if (body['data'].length == 0) {
+                Fluttertoast.showToast(
+                    msg: 'No Past Order! Order some first..',
+                    toastLength: Toast.LENGTH_LONG);
+              } else {
+                Navigator.push(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.rightToLeft,
+                        child: PreviouslyBoughtItem(
+                          previouslyBoughtItem: body['data']
+                              [body['data'].length - 1]['items'],
+                        )));
+              }
             },
             child: Container(
               width: ((width / 2.0) - fixPadding * 2.5),

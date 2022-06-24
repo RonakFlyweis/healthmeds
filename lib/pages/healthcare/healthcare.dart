@@ -4,20 +4,13 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:newhealthapp/Model/healthcareproductM/mhealthcare.dart';
 import 'package:newhealthapp/api/api_endpoint.dart';
-
-// import 'package:healthmeds/constants/constants.dart';
-// import 'package:healthmeds/pages/cart_payment/cart_payment.dart';
-// import 'package:healthmeds/pages/choose_location_address/choose_location.dart';
-// import 'package:healthmeds/pages/offer/offer.dart';
-// import 'package:healthmeds/pages/products_list/product_list.dart';
-// import 'package:healthmeds/pages/search/search.dart';
 import 'package:newhealthapp/contants/constants.dart';
 import 'package:newhealthapp/pages/choose_location_address/choose_location.dart';
 import 'package:newhealthapp/pages/products_list/product_list.dart';
 import 'package:newhealthapp/widgets/bottomnavi.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../api/api_provider.dart';
 import '../search/search.dart';
 
 class HealthCare extends StatefulWidget {
@@ -32,7 +25,7 @@ class _HealthCareState extends State<HealthCare> {
   }
 
   getHealthCareProducts() async {
-    var url = 'https://helthmade-1234.herokuapp.com/viewHealthCareProduct';
+    var url = '${ApiProvider.baseUrl}viewHealthCareProduct';
 
     try {
       http.Response r = await http.get(

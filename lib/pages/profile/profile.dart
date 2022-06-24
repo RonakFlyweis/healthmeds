@@ -189,7 +189,7 @@ class _ProfileState extends State<Profile> {
               EasyLoading.show();
               final body = await ApiProvider.getReqBodyDataAuthorized(
                   endpoint:
-                      'https://helthmade-1234.herokuapp.com/getPreviouslyBoughtItem');
+                      '${ApiProvider.baseUrl}getPreviouslyBoughtItem');
               EasyLoading.dismiss();
               Navigator.push(
                   context,
